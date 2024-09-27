@@ -7,7 +7,7 @@ import math
 class Receiver:
     def __init__(self, base):
         self.base= base
-        self.diff = 400
+        self.diff = 200
         self.freq = np.arange(4000, 4000 + self.diff * (self.base+1) , self.diff)
         self.noise=np.array([0.0]*(self.base+1))
 
