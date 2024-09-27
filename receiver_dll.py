@@ -27,17 +27,18 @@ def receiver_dll(id:int):
     rts_length, rts = receiver.decode_audio_to_bits(max_time = 0)
     if rts_length < 15:
         return -1
+    nav=decode(rts, 2)
     if(decode(message,1)!=id):
         # nav = decode(rts, 2)
-        nav = config.NAVTIME
-        sleep(nav)  #TODO
+        nav = config.NAVTIME  
+        sleep(nav)  #TODO Use NAV function
         return 
     sender_id = decode(rts, 0)
-    nav=decode(rts, 2)
     sleep(sifs)
     audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav))
     sender.send_audio(audio_signal)
     
+    #TODO: Max time is SIFS or timeout. Change maxtime to "timeout"
     _, message = receiver.decode_audio_to_bits(max_time = sifs)
 
     sleep(sifs)

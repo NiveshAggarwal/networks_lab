@@ -86,6 +86,8 @@ class Receiver:
             int: Index of the frequency with the maximum power
         """
         
+        #TODO: Add another parameter for the duration to carrier sense 
+        #TODO: Make sure it returns as soon as it detects a high
         stream, audio = self.open_audio_stream(sample_rate)
         freq_power=np.array([0.0]*(self.base+1)) 
         segment = self.receive_audio(stream, sense_duration, sample_rate)
