@@ -74,7 +74,7 @@ if __name__ == "__main__":
     receiver=Receiver(16)
     while True:
         #TODO: Carrier sense for DIFS before sending
-        if receiver.carrier_sense()[0] < 0:
+        if receiver.carrier_sense(total_duration=config.DIFS)[0] < 0:
             if backoffCounter <= 0:
                 receiverId, message = IOHelperObj.consumeInput()
                 # IOHelperObj.relayOutput(f"IDLE : {receiverId}, {message}")
