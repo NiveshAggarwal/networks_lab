@@ -2,7 +2,6 @@ from carrier_sense import *
 from crc import *
 from sender import *
 from time import sleep
-from lab3main import *
 import config
 
 sifs = 0.6
@@ -25,6 +24,7 @@ def receiver_dll(id:int):
     receiver = Receiver(16)
     sender = Sender(16)
     rts_length, rts = receiver.decode_audio_to_bits()
+    print(rts)
     if rts_length < 15:
         return -1
     nav=decode(rts, 2)
@@ -32,7 +32,7 @@ def receiver_dll(id:int):
         # nav = decode(rts, 2)
         nav = config.NAVTIME  
         sleep(nav)  #TODO Use NAV function
-        return 
+        return -1
     sender_id = decode(rts, 0)
     sleep(sifs)
     audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav))
