@@ -29,6 +29,8 @@ def checkACK(senderId ,receiverId ,ack) -> bool:
 
 def send(receiverId,message):
     receiver=Receiver(config.BASE)
+
+    #TODO: Should we carrier sense here?
     while receiver.carrier_sense()[0] >= 0:
         pass
     sender=Sender(config.BASE)
