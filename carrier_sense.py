@@ -74,55 +74,41 @@ class Receiver:
         stream.close()
         audio.terminate()
 
-    def carrier_sense(self, sample_rate: int = 44100, sense_duration: float = 0.1):
+    def carrier_sense(self, sample_rate: int = 44100, min_sense_duration: float = 0.03, total_duration: float = 0.3):
         """
         Detect the presence of a carrier signal.
 
         Parameters:
             sample_rate (int): Sampling rate in Hz
-            bit_duration (float): Duration of each bit in seconds
+            min_sense_duration (float): Minimum duration to sense the carrier signal
+            total_duration (float): Total duration to sense the carrier signal
             
         Returns:
             int: Index of the frequency with the maximum power
         """
-        
-        #TODO: Add another parameter for the duration to carrier sense 
-        #TODO: Make sure it returns as soon as it detects a high
         stream, audio = self.open_audio_stream(sample_rate)
-        freq_power=np.array([0.0]*(self.base+1)) 
-        segment = self.receive_audio(stream, sense_duration, sample_rate)
-        freq_power=np.array([0.0]*(self.base+1)) 
-        freqs, power = signal.welch(segment, sample_rate)
-        for i in range(self.base+1):
-            freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
-        index_max = np.argmax(freq_power)
-        threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16) + 1.6  #TODO
-        # threshold2 = -4.8
+        freq_power=np.array([0.0]*(self.base+1))
+        for _ in range(0, int(total_duration/min_sense_duration)):
+            segment = self.receive_audio(stream, min_sense_duration, sample_rate)
+            freqs, power = signal.welch(segment, sample_rate)
+            for i in range(self.base+1):
+                freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
+            index_max = np.argmax(freq_power)
+            threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16) + 1.6  #TODO: Change the threshold value
+
+            if np.log10(np.max(freq_power)) >= threshold:
+                stream.stop_stream()
+                stream.close()
+                audio.terminate()
+                return index_max, freq_power
+            else:
+                continue
+
         stream.stop_stream()
         stream.close()
         audio.terminate()
+        return -1, freq_power
 
-        if np.log10(np.max(freq_power)) >= threshold:
-            # print(index_max)
-            return index_max, freq_power
-        else:
-            # print(-1)
-            return -1, freq_power
-
-        # if np.log10(np.max(freq_power)) >= threshold2:
-        #     print(index_max)
-        # else:    
-        #     print(-1)
-
-        # print(index_max)
-        # print(np.log10(np.max(freq_power)))
-        # print(np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16))
-        # print(np.log10(freq_power[0]))
-        # print(np.log10(freq_power[-1]))
-        # print(np.argmax(freq_power))
-        # print()
-
-    
     def index_to_bits(self, index : int)-> np.ndarray:
         """
         Convert an index to a list of bits.
@@ -153,7 +139,7 @@ class Receiver:
             n=n*2+i
         return int(n)
 
-    def decode_audio_to_bits(self, sample_rate: int = 44100, bit_duration: float = 0.3, max_time: float = 100):
+    def decode_audio_to_bits(self, sample_rate: int = 44100, bit_duration: float = 0.3):
         """
         Decode an audio signal to a list of bits.
 
@@ -172,33 +158,19 @@ class Receiver:
         original_message_length = 0
         transmitted_message_length = 0
         prev=1
-        time = 0
+        
         stream, audio = self.open_audio_stream(sample_rate)
 
         print("Starting to receive audio: --------------------------------\n\n")  
 
         while True:
-            # segment = self.receive_audio(stream, bit_duration/10, sample_rate)
-            # freq_power=np.array([0.0]*(self.base+1)) 
-            # freqs, power = signal.welch(segment, sample_rate)
-            # for i in range(self.base+1):
-            #     freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
-            # # print(np.log10(np.max(freq_power)))
-            # # print(np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16))
-            # # print(np.log10(freq_power[0]))
-            # # print(np.log10(freq_power[-1]))
-            # # print(np.argmax(freq_power))
-            index_max, freq_power =self.carrier_sense(sense_duration=bit_duration/10)
-            if -1 == index_max:
-                time += bit_duration/10
-                if time >= max_time:
-                    print("Error")
-                    return -1, []
-                switch_zero_count=0
-                prev=np.argmax(freq_power)
-
-            elif freq_power[-1] >= np.max(freq_power[:-1]) and prev==0: 
-                if switch_zero_count >= 3:
+            segment = self.receive_audio(stream, bit_duration/10, sample_rate)
+            freq_power=np.array([0.0]*(self.base+1)) 
+            freqs, power = signal.welch(segment, sample_rate)
+            for i in range(self.base+1):
+                freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
+            if freq_power[-1] >= np.max(freq_power[:-1]) and prev==0: 
+                if switch_zero_count >= 4:
                     print("Special sequence ends. Now recieving preamble ... \n\n")  
                     break
                 else:
@@ -220,17 +192,11 @@ class Receiver:
         while True:
             prev = max_ind
             max_ind = 0
-            # segment = self.receive_audio(stream, bit_duration/10, sample_rate)
-            # freqs, power = signal.welch(segment, sample_rate)
-            # for i in  range(self.base+1):
-            #     freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-100) & (freqs <= self.freq[i]+100)]) - self.noise[i])
-            max_ind, freq_power =self.carrier_sense(sense_duration=bit_duration/10)
-            
-            # print(np.log10(np.max(freq_power)))
-            # print(np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16))
-            # print(np.log10(freq_power[0]))
-            # print(np.log10(freq_power[-1]))
-            # print(max_ind)
+            segment = self.receive_audio(stream, bit_duration/10, sample_rate)
+            freqs, power = signal.welch(segment, sample_rate)
+            for i in  range(self.base+1):
+                freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-100) & (freqs <= self.freq[i]+100)]) - self.noise[i])
+            max_ind=np.argmax(freq_power)
             if prev == 0 and max_ind != 0:
                 if not flag:
                     if len(preamble)+int(math.log2(self.base))>=5:
@@ -260,8 +226,3 @@ class Receiver:
         print(f"Transmitted message length after preamble: {len(message_after_preamble)}")
         return original_message_length, list(message_after_preamble.astype(int))
 
-if __name__ == "__main__":
-
-    receiver = Receiver(16)
-    for _ in range(50):
-        print(receiver.carrier_sense())
