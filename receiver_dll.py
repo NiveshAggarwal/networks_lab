@@ -24,7 +24,7 @@ def acknowledge(sender_id,reciever_id):
 def receiver_dll(id:int):
     receiver = Receiver(16)
     sender = Sender(16)
-    rts_length, rts = receiver.decode_audio_to_bits(max_time = 0)
+    rts_length, rts = receiver.decode_audio_to_bits()
     if rts_length < 15:
         return -1
     nav=decode(rts, 2)
@@ -39,7 +39,7 @@ def receiver_dll(id:int):
     sender.send_audio(audio_signal)
     
     #TODO: Max time is SIFS or timeout. Change maxtime to "timeout"
-    _, message = receiver.decode_audio_to_bits(max_time = sifs)
+    _, message = receiver.decode_audio_to_bits()
 
     sleep(sifs)
     audio_signal = sender.encode_bits_to_audio(acknowledge(sender_id,id))

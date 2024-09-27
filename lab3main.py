@@ -39,7 +39,7 @@ def send(receiverId,message):
     encoded_audio=sender.encode_bits_to_audio(bits = createRTS(Id,receiverId,len(message)))
     sleep(config.SIFS) #TODO: Don't sleep here. 
     sender.send_audio(encoded_audio)
-    cts_length, cts = receiver.decode_audio_to_bits(max_time=config.SIFS)  #TODO: max_time is SIFS or timeout. Change maxtime to "timeout"
+    cts_length, cts = receiver.decode_audio_to_bits()  #TODO: max_time is SIFS or timeout. Change maxtime to "timeout"
     # cts=decodeCrc(transmission=tranmission, bits=bits)
     if cts_length == -1:
         return -1
@@ -49,7 +49,7 @@ def send(receiverId,message):
     encoded_message_audio=sender.encode_bits_to_audio(message)
     sleep(config.SIFS)
     sender.send_audio(encoded_message_audio)
-    ACK_length, ACK = receiver.decode_audio_to_bits(max_time=config.SIFS)
+    ACK_length, ACK = receiver.decode_audio_to_bits()
     # ACK=decodeCrc(transmission=ack_Tranmission, bits=ack_Bits)
 
     #TODO: Check if ACK is correct
