@@ -7,8 +7,8 @@ import config
 
 sifs = 0.6
 
-def decode(message : list[int], index: int = 0):
-    return int(''.join(message[index*5:index*5+5]), 2)
+def decode(message: list[int], index: int = 0):
+    return int(''.join(map(str, message[index*5:index*5+5])), 2)
 
 def cts(sender_id,reciever_id,nav):
     message += list(f'{sender_id:05b}')

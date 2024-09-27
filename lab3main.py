@@ -9,6 +9,7 @@ from carrier_sense import *
 from IOHelper import IOHelper
 
 IOHelperObj = IOHelper()
+
 def navTime(messageLen=2):
     return config.NAVTIME
 
@@ -66,6 +67,7 @@ if __name__ == "__main__":
     backoffCounterMax = 2
     receiver=Receiver(16)
     while True:
+        #TODO: Wait for DIFS before sending
         if receiver.carrier_sense()[0] < 0:
             if backoffCounter <= 0:
                 receiverId, message = IOHelperObj.consumeInput()
