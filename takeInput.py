@@ -18,11 +18,12 @@ def takeInput():
 
 def send_input():
     ack_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    ack_client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     ack_client_socket.bind(('localhost', config.PORT_1))
     ack_client_socket.listen(1)
 
     ack_socket, _ = ack_client_socket.accept()
-    time.sleep(2)
+    
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect(('localhost', config.PORT_2))
 

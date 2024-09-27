@@ -8,6 +8,7 @@ class IOHelper:
         self.ack_socket.connect(('localhost', config.PORT_1))
 
         self.trial_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.trial_server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.trial_server_socket.bind(('localhost', config.PORT_2))
         self.trial_server_socket.listen(1)
         self.trial_socket, _ = self.trial_server_socket.accept()
@@ -16,6 +17,7 @@ class IOHelper:
         self.output_socket.connect(('localhost', config.PORT_3))
 
         self.output_ack_socket_init = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.output_ack_socket_init.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.output_ack_socket_init.bind(('localhost', config.PORT_4))
         self.output_ack_socket_init.listen(1)
         self.output_ack_socket, _ = self.output_ack_socket_init.accept()
