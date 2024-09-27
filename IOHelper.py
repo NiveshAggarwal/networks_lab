@@ -46,6 +46,13 @@ class IOHelper:
            return (self.noInput, '')
 
     def relayOutput(self, output):
+        if type(output) == list:
+            if type(output[0]) == int:
+                output = ",".join([str(i) for i in output])
+            else:
+                output = ",".join([i for i in output])
+        if type(output) == int:
+            output = str(output)
         self.output_socket.send(output.encode())
         self.output_ack_socket.recv(1024)
         if output == "TERMINATED":

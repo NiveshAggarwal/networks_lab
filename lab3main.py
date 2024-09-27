@@ -13,8 +13,9 @@ def navTime(messageLen=2):
     return config.NAVTIME
 
 def createRTS(senderId,receiverId,messageLen):
-    IOHelperObj.relayOutput([senderId%(2**(i+1)) for i in range(5)] + [receiverId%(2**(i+1)) for i in range(5)] + [navTime(messageLen)%(2**(i+1)) for i in range(5)])
-    return [senderId%(2**(i+1)) for i in range(5)] + [receiverId%(2**(i+1)) for i in range(5)] + [navTime(messageLen)%(2**(i+1)) for i in range(5)]
+    navT = navTime(messageLen)
+    IOHelperObj.relayOutput([((senderId>>i) & 1) for i in range(5)] + [((receiverId>>i) & 1) for i in range(5)] + [((navT>>i) & 1) for i in range(5)])
+    return [((senderId>>i) & 1) for i in range(5)] + [((receiverId>>i) & 1) for i in range(5)] + [((navT>>i) & 1) for i in range(5)]
 
 def IdsFromCts(cts):
     IOHelperObj.relayOutput(sum([(2**(4-i))*cts[i] for i in range(5)]))
@@ -73,7 +74,7 @@ if __name__ == "__main__":
                     break
                 elif receiverId != IOHelperObj.noInput:
                     if send(receiverId, message) != 0:
-                        IOHelperObj.insert((receiverId, message))
+                        IOHelperObj.insert(receiverId, message)
                         backoffCounterMax *= 2 #need to change
                         backoffCounter = random.randint(0, backoffCounterMax)
             else:
@@ -81,3 +82,4 @@ if __name__ == "__main__":
         else:
             IOHelperObj.relayOutput("BUSY")
             message=receiver_dll(id)
+        sleep(0.03)
