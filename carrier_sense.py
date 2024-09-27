@@ -139,7 +139,7 @@ class Receiver:
             n=n*2+i
         return int(n)
 
-    def decode_audio_to_bits(self, sample_rate: int = 44100, bit_duration: float = 0.3):
+    def decode_audio_to_bits(self, sample_rate: int = 44100, bit_duration: float = 0.3, max_time:float = 0.3):
         """
         Decode an audio signal to a list of bits.
 
@@ -158,6 +158,7 @@ class Receiver:
         original_message_length = 0
         transmitted_message_length = 0
         prev=1
+        time = 0
         
         stream, audio = self.open_audio_stream(sample_rate)
 
@@ -165,6 +166,7 @@ class Receiver:
 
         while True:
             segment = self.receive_audio(stream, bit_duration/10, sample_rate)
+            time += bit_duration/10
             freq_power=np.array([0.0]*(self.base+1)) 
             freqs, power = signal.welch(segment, sample_rate)
             for i in range(self.base+1):
@@ -185,6 +187,9 @@ class Receiver:
             else:
                 switch_zero_count=0
                 prev=np.argmax(freq_power) 
+
+            if time >= max_time:
+                return -1, []
 
         self.receive_audio(stream, bit_duration*0.9, sample_rate)
         prev = 0
