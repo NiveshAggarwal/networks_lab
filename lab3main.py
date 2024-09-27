@@ -8,7 +8,8 @@ from receiver_dll import *
 from carrier_sense import *
 from IOHelper import IOHelper
 
-IOHelperObj = IOHelper()
+if __name__ == "__main__":
+    IOHelperObj = IOHelper()
 
 def navTime(messageLen=2):
     return config.NAVTIME
