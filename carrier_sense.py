@@ -139,7 +139,7 @@ class Receiver:
             n=n*2+i
         return int(n)
 
-    def decode_audio_to_bits(self, sample_rate: int = 44100, bit_duration: float = 0.3, max_time:float = 0.3):
+    def decode_audio_to_bits(self, sample_rate: int = 44100, bit_duration: float = 0.3, max_time:float = 2):
         """
         Decode an audio signal to a list of bits.
 
