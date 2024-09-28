@@ -6,13 +6,20 @@ from receiver_dll import *
 from carrier_sense import *
 from IOHelper import IOHelper
 import math
+import ntplib
 
 if __name__ == "__main__":
     IOHelperObj = IOHelper()
 
 def navSlots(messageLen=2):
     return math.ceil((messageLen+16+10)//int(np.log2(config.BASE)))+7+7+7+4
-
+def get_ntp_time(server='pool.ntp.org'):
+    try:
+        ntp_client = ntplib.NTPClient()
+        response = ntp_client.request(server)
+        return ctime(response.tx_time)
+    except Exception as e:
+        return -1
 def createRTS(senderId,receiverId,messageLen):
     navT = navSlots(messageLen)
     message = list(f'{senderId:05b}')
@@ -48,7 +55,7 @@ def send(receiverId:int, message: list[int]):
 
     encoded_message_audio=sender.encode_bits_to_audio(message)
     sender.send_audio(encoded_message_audio)
-    IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {time()}")
+    IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {get_ntp_time()}")
     print("Message sent successfully. Waiting for ACK\n\n")
 
     ACK_length, ACK = receiver.decode_audio_to_bits()
@@ -105,4 +112,4 @@ if __name__ == "__main__":
         else:
             sender_id, message=receiver_dll(Id)
             if sender_id > 0:
-                IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}")
+                IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {get_ntp_time()}")
