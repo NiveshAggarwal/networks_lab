@@ -24,6 +24,20 @@ class Sender:
         wave = amplitude * np.sin(2 * np.pi * frequency * t)
         return wave
     
+    def convert_int_to_binary(self, num: int) -> list[int]:
+        """
+        Convert an integer to a list of bits.
+        Parameters:
+            num (int): Integer to convert
+        Returns:
+            binary (list[int]): List of bits
+        """
+        binary = []
+        while num > 0:
+            binary.insert(0, num % 2)
+            num = num // 2
+        return binary
+
     def convert_list(self, message: list[int], base : int) -> np.ndarray:
         """
         Convert a list of bits to a list of integers.
@@ -57,8 +71,9 @@ class Sender:
         """
 
         transmission=np.array([1,1,1,1,1,-1])                                           # special sequence
-        transmission = np.append(transmission, self.convert_list(message[0:5], base))   # preamble
-        transmission = np.append(transmission, self.convert_list(message[5:], base))    # tranmission message
+        # transmission = np.append(transmission, self.convert_list(message[0:5], base))   # preamble
+        transmission = np.append(transmission, self.convert_list(self.convert_int_to_binary(len(message)), base))                     # append message length in 5 bits as premable     
+        transmission = np.append(transmission, self.convert_list(message, base))    # tranmission message
         return transmission
 
     def encode_bits_to_audio(self, bits: np.ndarray, sample_rate: int = 44100, duration: float = 0.3, amplitude: float =1)-> np.ndarray:
@@ -76,6 +91,7 @@ class Sender:
         
         tranmission_msg_in_changed_base = self.change_base(bits, self.base)
 
+        print(tranmission_msg_in_changed_base)
         for i in tranmission_msg_in_changed_base:
             audio_signal = np.append(audio_signal, self.generate_waves(self.frequencies[int(i)], duration/2, sample_rate, amplitude))
             audio_signal = np.append(audio_signal, self.generate_waves(self.frequencies[0], duration/2, sample_rate, amplitude))
