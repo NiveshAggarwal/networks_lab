@@ -62,7 +62,7 @@ def send(receiverId:int, message: list[int], noise_power: np.ndarray):
     #TODO: Check if ACK is correct
     if ACK_length == -1:
         return -1
-    if checkACK(receiverId, receiverId, ACK):
+    if checkACK(Id, receiverId, ACK):
         return 0
     else:
         return -1
