@@ -22,8 +22,6 @@ def createRTS(senderId,receiverId,messageLen):
     return message
 
 def IdsFromCts(cts):
-    # IOHelperObj.relayOutput(int(sum([(2**(4-i))*cts[i] for i in range(5)])))
-    # IOHelperObj.relayOutput(int(sum([(2**(4-i))*cts[i+5] for i in range(5)])))
     return sum([(2**(4-i))*cts[i] for i in range(5)]), sum([(2**(4-i))*cts[i+5] for i in range(5)])
 
 def checkACK(senderId ,receiverId ,ack) -> bool:
@@ -60,12 +58,13 @@ def send(receiverId:int, message: list[int]):
 
     ACK_length, ACK = receiver.decode_audio_to_bits()
 
-    #TODO: Check if ACK is correct
     if ACK_length == -1:
+        print("ACK not received within timeout time")
         return -1
     if checkACK(Id, receiverId, ACK):
         return 0
     else:
+        print("ACK has incorrect sender or receiver ID")
         return -1
     
 
@@ -115,5 +114,4 @@ if __name__ == "__main__":
             # IOHelperObj.relayOutput("BUSY")
             sender_id, message=receiver_dll(Id)
             if sender_id > 0:
-                IOHelperObj.relayOutput(f"[RECVD] {message} {sender_id} {time()}")
-            #TODO: Print message properly
+                IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}")
