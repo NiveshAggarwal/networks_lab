@@ -91,4 +91,4 @@ if __name__ == "__main__":
             IOHelperObj.relayOutput("BUSY")
             message=receiver_dll(Id)
             #TODO: Print message properly
-        sleep(0.03)
+        # sleep(0.03)

@@ -7,7 +7,7 @@ import math
 class Receiver:
     def __init__(self, base):
         self.base= base
-        self.diff = 200
+        self.diff = 400
         self.freq = np.arange(4000, 4000 + self.diff * (self.base+1) , self.diff)
         self.noise=np.array([0.0]*(self.base+1))
 
@@ -94,7 +94,7 @@ class Receiver:
             for i in range(self.base+1):
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
             index_max = np.argmax(freq_power)
-            threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16) + 1.6  #TODO: Change the threshold value
+            threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16) + 1  #TODO: Change the threshold value
 
             if np.log10(np.max(freq_power)) >= threshold:
                 stream.stop_stream()
@@ -139,7 +139,7 @@ class Receiver:
             n=n*2+i
         return int(n)
 
-    def decode_audio_to_bits(self, sample_rate: int = 44100, bit_duration: float = 0.3, max_time:float = 2):
+    def decode_audio_to_bits(self, sample_rate: int = 44100, bit_duration: float = 0.3, max_time:float = 4):
         """
         Decode an audio signal to a list of bits.
 
@@ -171,6 +171,7 @@ class Receiver:
             freqs, power = signal.welch(segment, sample_rate)
             for i in range(self.base+1):
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
+            
             if freq_power[-1] >= np.max(freq_power[:-1]) and prev==0: 
                 if switch_zero_count >= 4:
                     print("Special sequence ends. Now recieving preamble ... \n\n")  
