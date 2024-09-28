@@ -55,7 +55,7 @@ def send(receiverId:int, message: list[int]):
     # sleep(config.SIFS)
     sender.send_audio(encoded_message_audio)
 
-    IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {time.time}")
+    IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {time()}")
     print("Message sent successfully. Waiting for ACK\n\n")
 
     ACK_length, ACK = receiver.decode_audio_to_bits()
@@ -113,5 +113,5 @@ if __name__ == "__main__":
             # IOHelperObj.relayOutput("BUSY")
             sender_id, message=receiver_dll(Id)
             if sender_id > 0:
-                IOHelperObj.relayOutput(f"[RECVD] {message} {sender_id} {time.time}")
+                IOHelperObj.relayOutput(f"[RECVD] {message} {sender_id} {time()}")
             #TODO: Print message properly
