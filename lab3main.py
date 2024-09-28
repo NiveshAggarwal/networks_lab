@@ -45,6 +45,7 @@ def send(receiverId:int, message: list[int]):
 
     cts_length, cts = receiver.decode_audio_to_bits() 
     if cts_length == -1:
+        print("CTS not received within timeout time\n\n")
         return -1
 
     SenderIdGot,receiverIdGot = IdsFromCts(cts) 
@@ -98,7 +99,7 @@ if __name__ == "__main__":
                             continue
                         IOHelperObj.insert(receiverId, message)
                         backoffCounterMax += 1
-                        backoffCounterMax=max(backoffCounterMax,backoffCounterCap)
+                        backoffCounterMax=min(backoffCounterMax,backoffCounterCap)
                         backoffCounter = random.randint(0, 2**backoffCounterMax)
                     else:
                         print("Message sent successfully. ACK received\n\n")
