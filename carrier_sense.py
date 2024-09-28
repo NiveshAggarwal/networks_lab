@@ -7,8 +7,8 @@ import math
 class Receiver:
     def __init__(self, base):
         self.base= base
-        self.diff = 400
-        self.freq = np.arange(4000, 4000 + self.diff * (self.base+1) , self.diff)
+        self.diff = 200
+        self.freq = np.arange(2000, 2000 + self.diff * (self.base+1) , self.diff)
         self.noise=np.array([0.0]*(self.base+1))
 
     def open_audio_stream(self, sample_rate: int = 44100):
@@ -95,7 +95,7 @@ class Receiver:
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
             index_max = np.argmax(freq_power)
             # threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16) + 1.5  #TODO: Change the threshold value
-            threshold = (np.mean(np.log10(freq_power)) - np.log10(np.max(freq_power))/(self.base+1))*(self.base+1)/self.base  + 1.5
+            threshold = (np.mean(np.log10(freq_power)) - np.log10(np.max(freq_power))/(self.base+1))*(self.base+1)/self.base  + 1.7
             if np.log10(np.max(freq_power)) >= threshold:
                 stream.stop_stream()
                 stream.close()
@@ -173,7 +173,7 @@ class Receiver:
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
             
             if freq_power[-1] >= np.max(freq_power[:-1]) and prev==0: 
-                if switch_zero_count >= 4:
+                if switch_zero_count >= 3:
                     print("Special sequence ends. Now recieving preamble ... \n\n")  
                     break
                 else:

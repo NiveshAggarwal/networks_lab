@@ -22,9 +22,9 @@ def acknowledge(sender_id,reciever_id):
 
 def receiver_dll(id:int, noise_power: np.ndarray):
 
-    receiver = Receiver(16)
+    receiver = Receiver(config.BASE)
     receiver.noise = noise_power
-    sender = Sender(16)
+    sender = Sender(config.BASE)
     rts_length, rts = receiver.decode_audio_to_bits()
     print(rts)
     if rts_length < 15:

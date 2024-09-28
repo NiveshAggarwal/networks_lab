@@ -29,7 +29,7 @@ def checkACK(senderId ,receiverId ,ack) -> bool:
 def send(receiverId:int, message: list[int], noise_power: np.ndarray):
     receiver=Receiver(config.BASE)
     receiver.noise = noise_power
-    
+
     #TODO: Should we carrier sense here?
     while receiver.carrier_sense()[0] >= 0:            
         pass
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     
     backoffCounter = 0
     backoffCounterMax = 2
-    receiver=Receiver(16)
+    receiver=Receiver(config.BASE)
     receiver.calibrate()
     while True:
         #TODO: Carrier sense for DIFS before sending
