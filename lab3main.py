@@ -85,7 +85,9 @@ if __name__ == "__main__":
             if backoffCounter <= 0:
                 receiverId, message = IOHelperObj.consumeInput()
                 # IOHelperObj.relayOutput(f"IDLE : {receiverId}, {message}")
-                if receiverId == IOHelperObj.terminated:
+                if receiverId == -1:
+                    continue
+                elif receiverId == IOHelperObj.terminated:
                     break
                 elif receiverId != IOHelperObj.noInput:
                     print(f"ReceiverId: {receiverId}, message: {message}")
