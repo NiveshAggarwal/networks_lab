@@ -42,10 +42,10 @@ class IOHelper:
                 self.trial_server_socket.close()
                 self.isTerminated = True
                 self.relayOutput("TERMINATED")
-                return (self.terminated, '')
-            return (int(receiverId), message)
+                return (self.terminated, [])
+            return (int(receiverId), [int(i) for i in message])
         else:
-           return (self.noInput, '')
+           return (self.noInput, [])
 
     def relayOutput(self, output):
         if type(output) == list:

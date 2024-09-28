@@ -39,29 +39,33 @@ def send(receiverId:int, message: list[int], noise_power: np.ndarray):
 
     sender=Sender(config.BASE)
     encoded_audio=sender.encode_bits_to_audio(bits = createRTS(Id,receiverId,len(message)))
-    print(createRTS(Id,receiverId,len(message)))
+
+    print("RTS sent successfully. Waiting for CTS\n\n")
+
     sleep(config.SIFS) #TODO: Don't sleep here. 
     sender.send_audio(encoded_audio)
     cts_length, cts = receiver.decode_audio_to_bits()  #TODO: max_time is SIFS or timeout. Change maxtime to "timeout"
-    # cts=decodeCrc(transmission=tranmission, bits=bits)
+    
     if cts_length == -1:
         return -1
     SenderIdGot,receiverIdGot = IdsFromCts(cts) #TODO: Check if this is correct
+    print("CTS received successfully. Sending message\n\n")
     if SenderIdGot != Id or receiverId != receiverIdGot:
         return -1                               # TODO: Receive CTS and wait for NAV
     encoded_message_audio=sender.encode_bits_to_audio(message)
     sleep(config.SIFS)
     sender.send_audio(encoded_message_audio)
+    print("Message sent successfully. Waiting for ACK\n\n")
+
     ACK_length, ACK = receiver.decode_audio_to_bits()
-    # ACK=decodeCrc(transmission=ack_Tranmission, bits=ack_Bits)
 
     #TODO: Check if ACK is correct
     if ACK_length == -1:
         return -1
     if checkACK(receiverId, receiverId, ACK):
-        return -1
-    else:
         return 0
+    else:
+        return -1
     
 
 
@@ -75,7 +79,7 @@ if __name__ == "__main__":
     backoffCounter = 0
     backoffCounterMax = 2
     receiver=Receiver(config.BASE)
-    receiver.calibrate()
+    # receiver.calibrate()
     while True:
         #TODO: Carrier sense for DIFS before sending
         if receiver.carrier_sense(total_duration=config.DIFS)[0] < 0:
@@ -89,6 +93,11 @@ if __name__ == "__main__":
                         IOHelperObj.insert(receiverId, message)     #TODO: Check where in the queue is it inserted
                         backoffCounterMax *= 2 #TODO: need to change
                         backoffCounter = random.randint(0, backoffCounterMax)
+                    else:
+                        print("Message sent successfully. ACK received\n\n")
+                        sleep(1)
+                        backoffCounter = 0
+                        backoffCounterMax = 2
             else:
                 backoffCounter -= 1
         else:

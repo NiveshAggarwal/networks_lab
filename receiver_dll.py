@@ -38,21 +38,27 @@ def receiver_dll(id:int, noise_power: np.ndarray):
         sleep(nav)  #TODO Use NAV function
         return -1
     sender_id = decode(rts, 0)
+
+    print("RTS received successfully. Sending CTS\n\n")
     sleep(sifs)
     audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav))
     sender.send_audio(audio_signal)
-    
+
+    print("CTS sent successfully. Waiting for message\n\n")    
     #TODO: Max time is SIFS or timeout. Change maxtime to "timeout"
     message_length, message = receiver.decode_audio_to_bits()
     print(message)
     print(message_length)
-    
+
     if message_length < 0:
         return -1
+    
+    print("Message received successfully. Sending ACK\n\n")
     sleep(sifs)
     audio_signal = sender.encode_bits_to_audio(acknowledge(sender_id,id))
     sender.send_audio(audio_signal)
 
+    print("ACK sent successfully\n\n")
     return message
 
 

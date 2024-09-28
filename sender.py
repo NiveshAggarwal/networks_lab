@@ -51,8 +51,10 @@ class Sender:
             converted_array (np.ndarray): Numpy array containing the converted integers
         """
         converted_array = np.array([])
+        print(message)
         message=np.array(message)
         n=int(math.log2(base))
+        print(message)
         if len(message)%n != 0:
             message = np.append(message, np.zeros(n - len(message)%n))
         for i in range(0, len(message), n):
