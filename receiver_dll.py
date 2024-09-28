@@ -13,6 +13,7 @@ def cts(sender_id,reciever_id,nav):
     message = list(f'{sender_id:05b}')
     message += list(f'{reciever_id:05b}')
     message += list(f'{nav:05b}')
+    message = [int(i) for i in message]
     return message
 
 def acknowledge(sender_id,reciever_id):
