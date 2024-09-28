@@ -30,34 +30,28 @@ def checkACK(senderId ,receiverId ,ack) -> bool:
 
 def send(receiverId:int, message: list[int]):
     receiver=Receiver(config.BASE)
-
-    # #TODO: Should we carrier sense here?
-    # while receiver.carrier_sense()[0] >= 0:            
-    #     pass
-
     sender=Sender(config.BASE)
-    encoded_audio=sender.encode_bits_to_audio(bits = createRTS(Id,receiverId,len(message)))
 
+    encoded_audio=sender.encode_bits_to_audio(bits = createRTS(Id,receiverId,len(message)))
+    sender.send_audio(encoded_audio)
     print("RTS sent successfully. Waiting for CTS\n\n")
 
-    sender.send_audio(encoded_audio)
     cts_length, cts = receiver.decode_audio_to_bits() 
-    
     if cts_length == -1:
         return -1
-    SenderIdGot,receiverIdGot = IdsFromCts(cts) 
-    print("CTS received successfully. Sending message\n\n")
-    if SenderIdGot != Id or receiverId != receiverIdGot:
-        return -1                               # TODO: Receive CTS and wait for NAV
-    encoded_message_audio=sender.encode_bits_to_audio(message)
-    # sleep(config.SIFS)
-    sender.send_audio(encoded_message_audio)
 
+    SenderIdGot,receiverIdGot = IdsFromCts(cts) 
+    if SenderIdGot != Id or receiverId != receiverIdGot:
+        print("CTS has incorrect sender or receiver ID\n\n")
+        return -1                               # TODO: Receive CTS and wait for NAV
+    print("CTS received successfully. Sending message\n\n")
+
+    encoded_message_audio=sender.encode_bits_to_audio(message)
+    sender.send_audio(encoded_message_audio)
     IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {time()}")
     print("Message sent successfully. Waiting for ACK\n\n")
 
     ACK_length, ACK = receiver.decode_audio_to_bits()
-
     if ACK_length == -1:
         print("ACK not received within timeout time")
         return -1
@@ -111,7 +105,6 @@ if __name__ == "__main__":
 
                 backoffCounter -= 1
         else:
-            # IOHelperObj.relayOutput("BUSY")
             sender_id, message=receiver_dll(Id)
             if sender_id > 0:
                 IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}")
