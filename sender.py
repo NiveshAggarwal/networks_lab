@@ -51,7 +51,6 @@ class Sender:
             converted_array (np.ndarray): Numpy array containing the converted integers
         """
         converted_array = np.array([])
-        print(message)
         n=int(math.log2(base))
         if len(message)%n != 0:
             message = np.append(message, np.zeros(n - len(message)%n))
@@ -74,7 +73,7 @@ class Sender:
         """
 
         transmission=np.array([1,1,1,1,1,-1])                                           # special sequence
-        transmission = np.append(transmission, self.convert_list(self.convert_int_to_binary(len(message)), base))    #preamble                 # append message length in 5 bits as premable     
+        transmission = np.append(transmission, self.convert_list(self.convert_int_to_binary(len(message)), base))  #preamble   
         transmission = np.append(transmission, self.convert_list(message, base))    # tranmission message
         return transmission
 
