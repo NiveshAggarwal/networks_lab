@@ -7,7 +7,7 @@ class Sender:
     def __init__(self, base):
         self.base = base
         self.diff = 400
-        self.frequencies = np.arange(4000, 4000 + self.diff * (self.base+1) , self.diff)
+        self.frequencies = np.arange(2000, 2000 + self.diff * (self.base+1) , self.diff)
 
     def generate_waves(self, frequency: int, duration: float, sample_rate: int = 44100, amplitude: float=1) -> np.ndarray:
         '''
