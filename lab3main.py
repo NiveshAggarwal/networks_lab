@@ -73,11 +73,9 @@ if __name__ == "__main__":
     backoffCounterCap = 3       # Can be scaled it as per requirements
     receiver=Receiver(config.BASE)
     while True:
-        #TODO: Carrier sense for DIFS before sending
         if receiver.carrier_sense(total_duration=config.DIFS)[0] < 0:
             if backoffCounter <= 0:
                 receiverId, message = IOHelperObj.consumeInput()
-                # IOHelperObj.relayOutput(f"IDLE : {receiverId}, {message}")
                 if receiverId == -1:
                     continue
                 elif receiverId == IOHelperObj.terminated:
@@ -91,8 +89,8 @@ if __name__ == "__main__":
                             backoffCounterMax = 1
                             collisions = 0
                             continue
-                        IOHelperObj.insert(receiverId, message)     #TODO: Check where in the queue is it inserted
-                        backoffCounterMax += 1 #TODO: need to change
+                        IOHelperObj.insert(receiverId, message)
+                        backoffCounterMax += 1
                         backoffCounterMax=max(backoffCounterMax,backoffCounterCap)
                         backoffCounter = random.randint(0, 2**backoffCounterMax)
                     else:
