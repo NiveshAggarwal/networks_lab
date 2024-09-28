@@ -1,13 +1,14 @@
 import numpy as np
 import pyaudio
 import math
+import config
 
 class Sender:
 
     def __init__(self, base):
         self.base = base
-        self.diff = 200
-        self.frequencies = np.arange(2000, 2000 + self.diff * (self.base+1) , self.diff)
+        self.diff = config.F_DIFF
+        self.frequencies = np.arange(config.F_LOW, config.F_LOW + self.diff * (self.base+1) , self.diff)
 
     def generate_waves(self, frequency: int, duration: float, sample_rate: int = 44100, amplitude: float=1) -> np.ndarray:
         '''
@@ -33,11 +34,13 @@ class Sender:
             binary (list[int]): List of bits
         """
         binary = []
-        while num > 0:
-            binary.insert(0, num % 2)
+        n = 5
+        while n > 0:
+            binary.append(num % 2)
             num = num // 2
-        return binary
-
+            n -= 1
+        return binary[::-1]
+        
     def convert_list(self, message: list[int], base : int) -> np.ndarray:
         """
         Convert a list of bits to a list of integers.
@@ -73,6 +76,7 @@ class Sender:
         transmission=np.array([1,1,1,1,1,-1])                                           # special sequence
         # transmission = np.append(transmission, self.convert_list(message[0:5], base))   # preamble
         transmission = np.append(transmission, self.convert_list(self.convert_int_to_binary(len(message)), base))                     # append message length in 5 bits as premable     
+        print(self.convert_list(self.convert_int_to_binary(len(message)), base))
         transmission = np.append(transmission, self.convert_list(message, base))    # tranmission message
         return transmission
 
@@ -89,9 +93,9 @@ class Sender:
         """
         audio_signal = np.array([])
         
-        tranmission_msg_in_changed_base = self.change_base(bits, self.base)
-
-        for i in tranmission_msg_in_changed_base:
+        transmission_msg_in_changed_base = self.change_base(bits, self.base)
+        print(transmission_msg_in_changed_base)
+        for i in transmission_msg_in_changed_base:
             audio_signal = np.append(audio_signal, self.generate_waves(self.frequencies[int(i)], duration/2, sample_rate, amplitude))
             audio_signal = np.append(audio_signal, self.generate_waves(self.frequencies[0], duration/2, sample_rate, amplitude))
         return audio_signal

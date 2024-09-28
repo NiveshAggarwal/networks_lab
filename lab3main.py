@@ -14,8 +14,11 @@ def navTime(messageLen=2):
 
 def createRTS(senderId,receiverId,messageLen):
     navT = navTime(messageLen)
-    IOHelperObj.relayOutput([((senderId>>i) & 1) for i in range(5)] + [((receiverId>>i) & 1) for i in range(5)] + [((navT>>i) & 1) for i in range(5)])
-    return [((senderId>>i) & 1) for i in range(5)] + [((receiverId>>i) & 1) for i in range(5)] + [((navT>>i) & 1) for i in range(5)]
+    message = list(f'{senderId:05b}')
+    message += list(f'{receiverId:05b}')
+    message += list(f'{navT:05b}')
+    message = [int(i) for i in message]
+    return message
 
 def IdsFromCts(cts):
     IOHelperObj.relayOutput(sum([(2**(4-i))*cts[i] for i in range(5)]))
@@ -36,6 +39,7 @@ def send(receiverId:int, message: list[int], noise_power: np.ndarray):
 
     sender=Sender(config.BASE)
     encoded_audio=sender.encode_bits_to_audio(bits = createRTS(Id,receiverId,len(message)))
+    print(createRTS(Id,receiverId,len(message)))
     sleep(config.SIFS) #TODO: Don't sleep here. 
     sender.send_audio(encoded_audio)
     cts_length, cts = receiver.decode_audio_to_bits()  #TODO: max_time is SIFS or timeout. Change maxtime to "timeout"

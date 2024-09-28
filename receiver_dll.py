@@ -10,7 +10,7 @@ def decode(message: list[int], index: int = 0):
     return int(''.join(map(str, message[index*5:index*5+5])), 2)
 
 def cts(sender_id,reciever_id,nav):
-    message += list(f'{sender_id:05b}')
+    message = list(f'{sender_id:05b}')
     message += list(f'{reciever_id:05b}')
     message += list(f'{nav:05b}')
     return message

@@ -3,12 +3,13 @@ import numpy as np
 from scipy import signal
 from crc import *
 import math
+import config
 
 class Receiver:
     def __init__(self, base):
         self.base= base
-        self.diff = 200
-        self.freq = np.arange(2000, 2000 + self.diff * (self.base+1) , self.diff)
+        self.diff = config.F_DIFF
+        self.freq = np.arange(config.F_LOW, config.F_LOW + self.diff * (self.base+1) , self.diff)
         self.noise=np.array([0.0]*(self.base+1))
 
     def open_audio_stream(self, sample_rate: int = 44100):
@@ -94,8 +95,8 @@ class Receiver:
             for i in range(self.base+1):
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
             index_max = np.argmax(freq_power)
-            # threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16) + 1.5  #TODO: Change the threshold value
-            threshold = (np.mean(np.log10(freq_power)) - np.log10(np.max(freq_power))/(self.base+1))*(self.base+1)/self.base  + 1.7
+            threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16) + 1.5  #TODO: Change the threshold value
+            # threshold = (np.mean(np.log10(freq_power)) - np.log10(np.max(freq_power))/(self.base+1))*(self.base+1)/self.base  + 1.7
             if np.log10(np.max(freq_power)) >= threshold:
                 stream.stop_stream()
                 stream.close()
@@ -173,7 +174,7 @@ class Receiver:
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
             
             if freq_power[-1] >= np.max(freq_power[:-1]) and prev==0: 
-                if switch_zero_count >= 3:
+                if switch_zero_count >= 4:
                     print("Special sequence ends. Now recieving preamble ... \n\n")  
                     break
                 else:
@@ -210,8 +211,8 @@ class Receiver:
                         preamble = np.append(preamble, self.index_to_bits(max_ind)[0:5-len(preamble)])
                         print("Preamble recieved. Now recieving message ... \n\n")
                         original_message_length = self.preamble_check(preamble)
-                        transmitted_message_length = int(transmissionLength(original_message_length))
-
+                        # transmitted_message_length = int(transmissionLength(original_message_length))  TODO: Uncomment this line
+                        transmitted_message_length = original_message_length
                     else:
                         preamble = np.append(preamble, self.index_to_bits(max_ind))
                 else:
