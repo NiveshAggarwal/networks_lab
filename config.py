@@ -1,4 +1,4 @@
-BASE = 16
+BASE = 2
 BIT_DURATION = 0.3
 SIFS = 0.6
 DIFS = 1.2

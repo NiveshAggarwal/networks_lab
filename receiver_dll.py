@@ -30,7 +30,7 @@ def receiver_dll(id:int, noise_power: np.ndarray):
     if rts_length < 15:
         return -1
     nav=decode(rts, 2)
-    if(decode(message,1)!=id):
+    if(decode(rts,1)!=id):
         # nav = decode(rts, 2)
         nav = config.NAVTIME  
         sleep(nav)  #TODO Use NAV function

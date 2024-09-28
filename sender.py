@@ -6,7 +6,7 @@ class Sender:
 
     def __init__(self, base):
         self.base = base
-        self.diff = 400
+        self.diff = 200
         self.frequencies = np.arange(2000, 2000 + self.diff * (self.base+1) , self.diff)
 
     def generate_waves(self, frequency: int, duration: float, sample_rate: int = 44100, amplitude: float=1) -> np.ndarray:
@@ -91,7 +91,6 @@ class Sender:
         
         tranmission_msg_in_changed_base = self.change_base(bits, self.base)
 
-        print(tranmission_msg_in_changed_base)
         for i in tranmission_msg_in_changed_base:
             audio_signal = np.append(audio_signal, self.generate_waves(self.frequencies[int(i)], duration/2, sample_rate, amplitude))
             audio_signal = np.append(audio_signal, self.generate_waves(self.frequencies[0], duration/2, sample_rate, amplitude))
