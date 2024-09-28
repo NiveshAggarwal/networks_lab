@@ -21,8 +21,8 @@ def createRTS(senderId,receiverId,messageLen):
     return message
 
 def IdsFromCts(cts):
-    IOHelperObj.relayOutput(sum([(2**(4-i))*cts[i] for i in range(5)]))
-    IOHelperObj.relayOutput(sum([(2**(4-i))*cts[i+5] for i in range(5)]))
+    IOHelperObj.relayOutput(int(sum([(2**(4-i))*cts[i] for i in range(5)])))
+    IOHelperObj.relayOutput(int(sum([(2**(4-i))*cts[i+5] for i in range(5)])))
     return sum([(2**(4-i))*cts[i] for i in range(5)]), sum([(2**(4-i))*cts[i+5] for i in range(5)])
 
 def checkACK(senderId ,receiverId ,ack) -> bool:

@@ -19,6 +19,7 @@ def cts(sender_id,reciever_id,nav):
 def acknowledge(sender_id,reciever_id):
     message = list(f'{sender_id:05b}')
     message += list(f'{reciever_id:05b}')
+    message = [int(i) for i in message]
     return message
 
 def receiver_dll(id:int, noise_power: np.ndarray):
@@ -42,8 +43,12 @@ def receiver_dll(id:int, noise_power: np.ndarray):
     sender.send_audio(audio_signal)
     
     #TODO: Max time is SIFS or timeout. Change maxtime to "timeout"
-    _, message = receiver.decode_audio_to_bits()
-
+    message_length, message = receiver.decode_audio_to_bits()
+    print(message)
+    print(message_length)
+    
+    if message_length < 0:
+        return -1
     sleep(sifs)
     audio_signal = sender.encode_bits_to_audio(acknowledge(sender_id,id))
     sender.send_audio(audio_signal)
