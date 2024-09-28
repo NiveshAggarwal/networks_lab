@@ -78,7 +78,7 @@ if __name__ == "__main__":
     backoffCounterMax = 1
     collisions=0
     maxCollsions=15
-    backoffCounterCap = 1       # Can be scaled it as per requirements
+    backoffCounterCap = 3       # Can be scaled it as per requirements
     receiver=Receiver(config.BASE)
     while True:
         if receiver.carrier_sense(total_duration=config.DIFS)[0] < 0:
