@@ -18,7 +18,11 @@ def get_ntp_time(server='pool.ntp.org'):
         ntp_client = ntplib.NTPClient()
         response = ntp_client.request(server)
         return ctime(response.tx_time)
+    except ntplib.NTPException as e:
+        print(f"NTP error: {e}")
+        return -1
     except Exception as e:
+        print(f"General error: {e}")
         return -1
 def createRTS(senderId,receiverId,messageLen):
     navT = navSlots(messageLen)
