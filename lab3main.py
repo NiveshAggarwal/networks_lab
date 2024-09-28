@@ -13,6 +13,7 @@ if __name__ == "__main__":
 
 def navSlots(messageLen=2):
     return math.ceil((messageLen+16+10)//int(np.log2(config.BASE)))+7+7+7+4
+
 def get_ntp_time(server='pool.ntp.org'):
     try:
         ntp_client = ntplib.NTPClient()
@@ -24,6 +25,7 @@ def get_ntp_time(server='pool.ntp.org'):
     except Exception as e:
         print(f"General error: {e}")
         return -1
+        
 def createRTS(senderId,receiverId,messageLen):
     navT = navSlots(messageLen)
     message = list(f'{senderId:05b}')
@@ -32,11 +34,15 @@ def createRTS(senderId,receiverId,messageLen):
     message = [int(i) for i in message]
     return message
 
-def IdsFromCts(cts):
-    return sum([(2**(4-i))*cts[i] for i in range(5)]), sum([(2**(4-i))*cts[i+5] for i in range(5)])
+def decode(message: list[int], index: int = 0):
+    if index==2:
+        return int(''.join(map(str, message[index*5:index*5+6])), 2)
+    else:
+        return int(''.join(map(str, message[index*5:index*5+5])), 2)
 
 def checkACK(senderId ,receiverId ,ack) -> bool:
-    senderIdGot, receiverIdGot = IdsFromCts(ack)
+    senderIdGot = decode(ack, 0)
+    receiverIdGot = decode(ack, 1)
     return senderIdGot == senderId and receiverIdGot == receiverId
 
 def send(receiverId:int, message: list[int]):
@@ -52,9 +58,11 @@ def send(receiverId:int, message: list[int]):
         print("CTS not received within timeout time\n\n")
         return -1
 
-    SenderIdGot,receiverIdGot = IdsFromCts(cts) 
-    if SenderIdGot != Id or receiverId != receiverIdGot:
+    receiverIdGot = decode(cts, 1)
+    senderIdGot = decode(cts, 0) 
+    if senderIdGot != Id or receiverId != receiverIdGot:
         print("CTS has incorrect sender or receiver ID\n\n")
+        sleep(decode(cts, 2)*config.BIT_DURATION)
         return -1                               # TODO: Receive CTS and wait for NAV
     print("CTS received successfully. Sending message\n\n")
 
