@@ -53,12 +53,12 @@ def send(receiverId:int, message: list[int]):
 
     ACK_length, ACK = receiver.decode_audio_to_bits()
     if ACK_length == -1:
-        print("ACK not received within timeout time")
+        print("ACK not received within timeout time\n\n")
         return -1
     if checkACK(Id, receiverId, ACK):
         return 0
     else:
-        print("ACK has incorrect sender or receiver ID")
+        print("ACK has incorrect sender or receiver ID\n\n")
         return -1
     
 

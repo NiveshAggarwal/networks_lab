@@ -30,13 +30,13 @@ def receiver_dll(id:int):
     sender = Sender(config.BASE)
     rts_length, rts = receiver.decode_audio_to_bits()
     if rts_length < 15:
-        print("RTS not received within timeout time")
+        print("RTS not received within timeout time\n\n")
         return -1, []
     nav=decode(rts, 2)
     sender_id = decode(rts, 0)
     
     if(decode(rts,1)!=id): 
-        print(f"RTS from {sender_id} not meant for me")
+        print(f"RTS from {sender_id} not meant for me\n\n")
         sleep(nav*config.BIT_DURATION)  
         return -1, []
 
@@ -44,11 +44,9 @@ def receiver_dll(id:int):
     print("RTS received successfully. Sending CTS\n\n")
     audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav))
     sender.send_audio(audio_signal)
-
     print("CTS sent successfully. Waiting for message\n\n")    
-    # Max time is config.SIFS or timeout. Change maxtime to "timeout"
-    message_length, message = receiver.decode_audio_to_bits()
 
+    message_length, message = receiver.decode_audio_to_bits()
     if message_length < 0:
         print("Message not received within timeout time")
         return -1, []
@@ -56,10 +54,11 @@ def receiver_dll(id:int):
     message = [int(i) for i in message]
     sleep(config.SIFS)
     print("Message received successfully. Sending ACK\n\n")
+    
     audio_signal = sender.encode_bits_to_audio(acknowledge(sender_id,id))
     sender.send_audio(audio_signal)
-
     print("ACK sent successfully\n\n")
+
     return sender_id, message
 
 
