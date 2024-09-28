@@ -28,7 +28,6 @@ def receiver_dll(id:int, noise_power: np.ndarray):
     receiver.noise = noise_power
     sender = Sender(config.BASE)
     rts_length, rts = receiver.decode_audio_to_bits()
-    print(rts)
     if rts_length < 15:
         return -1
     nav=decode(rts, 2)
@@ -47,8 +46,6 @@ def receiver_dll(id:int, noise_power: np.ndarray):
     print("CTS sent successfully. Waiting for message\n\n")    
     #TODO: Max time is SIFS or timeout. Change maxtime to "timeout"
     message_length, message = receiver.decode_audio_to_bits()
-    print(message)
-    print(message_length)
 
     if message_length < 0:
         return -1

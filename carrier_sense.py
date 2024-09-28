@@ -225,7 +225,6 @@ class Receiver:
         stream.close()
         audio.terminate()
         print("\n\nAudio reception complete: --------------------------------\n\n")
-        # assert len(message_after_preamble) == transmissionLength(original_message_length)
         assert len(message_after_preamble) == original_message_length
         
         print("Preamble: ",preamble)
