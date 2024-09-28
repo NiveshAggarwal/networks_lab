@@ -74,8 +74,7 @@ class Sender:
         """
 
         transmission=np.array([1,1,1,1,1,-1])                                           # special sequence
-        # transmission = np.append(transmission, self.convert_list(message[0:5], base))   # preamble
-        transmission = np.append(transmission, self.convert_list(self.convert_int_to_binary(len(message)), base))                     # append message length in 5 bits as premable     
+        transmission = np.append(transmission, self.convert_list(self.convert_int_to_binary(len(message)), base))    #preamble                 # append message length in 5 bits as premable     
         transmission = np.append(transmission, self.convert_list(message, base))    # tranmission message
         return transmission
 
@@ -93,8 +92,6 @@ class Sender:
         audio_signal = np.array([])
         
         transmission_msg_in_changed_base = self.change_base(bits, self.base)
-        print(f"Sender.py:  Bits to be sent: {bits}")
-        print(f"Sender.py:  Transmitted message in changed base: {transmission_msg_in_changed_base}")
         for i in transmission_msg_in_changed_base:
             audio_signal = np.append(audio_signal, self.generate_waves(self.frequencies[int(i)], duration/2, sample_rate, amplitude))
             audio_signal = np.append(audio_signal, self.generate_waves(self.frequencies[0], duration/2, sample_rate, amplitude))

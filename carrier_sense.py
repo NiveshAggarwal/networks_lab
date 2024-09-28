@@ -95,7 +95,7 @@ class Receiver:
             for i in range(self.base+1):
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
             index_max = np.argmax(freq_power)
-            threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16) + 1.5  #TODO: Change the threshold value
+            threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*17/16) + config.THRESHOLD  #TODO: Change the threshold value
             # threshold = (np.mean(np.log10(freq_power)) - np.log10(np.max(freq_power))/(self.base+1))*(self.base+1)/self.base  + 1.7
             if np.log10(np.max(freq_power)) >= threshold:
                 stream.stop_stream()
@@ -140,13 +140,14 @@ class Receiver:
             n=n*2+i
         return int(n)
 
-    def decode_audio_to_bits(self, sample_rate: int = 44100, bit_duration: float = 0.3, max_time:float = 4):
+    def decode_audio_to_bits(self, sample_rate: int = 44100, bit_duration: float = 0.3, timeout:float = config.TIMEOUT):
         """
         Decode an audio signal to a list of bits.
 
         Parameters:
             sample_rate (int): Sampling rate in Hz
             bit_duration (float): Duration of each bit in seconds
+            timeout (float): Time before which special sequence must be received
 
         Returns:
             int: Length of the original message
@@ -190,7 +191,7 @@ class Receiver:
                 switch_zero_count=0
                 prev=np.argmax(freq_power) 
 
-            if time >= max_time:
+            if time >= timeout:
                 return -1, []
 
         self.receive_audio(stream, bit_duration*0.9, sample_rate)

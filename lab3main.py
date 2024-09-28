@@ -1,37 +1,37 @@
 import random
 from sender import *
 import config
-from time import sleep
+from time import *
 from receiver_dll import *
 from carrier_sense import *
 from IOHelper import IOHelper
+import math
 
 if __name__ == "__main__":
     IOHelperObj = IOHelper()
 
-def navTime(messageLen=2):
-    return config.NAVTIME
+def navSlots(messageLen=2):
+    return math.ceil((messageLen+16+10)//int(np.log2(config.BASE)))+7+7+7+4
 
 def createRTS(senderId,receiverId,messageLen):
-    navT = navTime(messageLen)
+    navT = navSlots(messageLen)
     message = list(f'{senderId:05b}')
     message += list(f'{receiverId:05b}')
-    message += list(f'{navT:05b}')
+    message += list(f'{navT:06b}')
     message = [int(i) for i in message]
     return message
 
 def IdsFromCts(cts):
-    IOHelperObj.relayOutput(int(sum([(2**(4-i))*cts[i] for i in range(5)])))
-    IOHelperObj.relayOutput(int(sum([(2**(4-i))*cts[i+5] for i in range(5)])))
+    # IOHelperObj.relayOutput(int(sum([(2**(4-i))*cts[i] for i in range(5)])))
+    # IOHelperObj.relayOutput(int(sum([(2**(4-i))*cts[i+5] for i in range(5)])))
     return sum([(2**(4-i))*cts[i] for i in range(5)]), sum([(2**(4-i))*cts[i+5] for i in range(5)])
 
 def checkACK(senderId ,receiverId ,ack) -> bool:
     senderIdGot, receiverIdGot = IdsFromCts(ack)
     return senderIdGot == senderId and receiverIdGot == receiverId
 
-def send(receiverId:int, message: list[int], noise_power: np.ndarray):
+def send(receiverId:int, message: list[int]):
     receiver=Receiver(config.BASE)
-    receiver.noise = noise_power
 
     # #TODO: Should we carrier sense here?
     # while receiver.carrier_sense()[0] >= 0:            
@@ -42,19 +42,20 @@ def send(receiverId:int, message: list[int], noise_power: np.ndarray):
 
     print("RTS sent successfully. Waiting for CTS\n\n")
 
-    sleep(config.SIFS) #TODO: Don't sleep here. 
     sender.send_audio(encoded_audio)
-    cts_length, cts = receiver.decode_audio_to_bits()  #TODO: max_time is SIFS or timeout. Change maxtime to "timeout"
+    cts_length, cts = receiver.decode_audio_to_bits() 
     
     if cts_length == -1:
         return -1
-    SenderIdGot,receiverIdGot = IdsFromCts(cts) #TODO: Check if this is correct
+    SenderIdGot,receiverIdGot = IdsFromCts(cts) 
     print("CTS received successfully. Sending message\n\n")
     if SenderIdGot != Id or receiverId != receiverIdGot:
         return -1                               # TODO: Receive CTS and wait for NAV
     encoded_message_audio=sender.encode_bits_to_audio(message)
-    sleep(config.SIFS)
+    # sleep(config.SIFS)
     sender.send_audio(encoded_message_audio)
+
+    IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {time.time}")
     print("Message sent successfully. Waiting for ACK\n\n")
 
     ACK_length, ACK = receiver.decode_audio_to_bits()
@@ -70,16 +71,14 @@ def send(receiverId:int, message: list[int], noise_power: np.ndarray):
 
 
 if __name__ == "__main__":
-    Id=int(input("Enter the ID of this device : "))
-    # input_thread = threading.Thread(target=takeInput)
-    # input_thread.start()
 
-    # IOHelperObj = IOHelper()
-    
+    Id=int(input("Enter the ID of this device : "))
     backoffCounter = 0
-    backoffCounterMax = 2
+    backoffCounterMax = 1
+    collisions=0
+    maxCollsions=15
+    backoffCounterCap = 3       # Can be scaled it as per requirements
     receiver=Receiver(config.BASE)
-    # receiver.calibrate()
     while True:
         #TODO: Carrier sense for DIFS before sending
         if receiver.carrier_sense(total_duration=config.DIFS)[0] < 0:
@@ -90,18 +89,29 @@ if __name__ == "__main__":
                     break
                 elif receiverId != IOHelperObj.noInput:
                     print(f"ReceiverId: {receiverId}, message: {message}")
-                    if send(receiverId, message, receiver.noise) != 0:
+                    if send(receiverId, message) != 0:
+                        collisions+=1
+                        if collisions > maxCollsions:
+                            backoffCounter = 0
+                            backoffCounterMax = 1
+                            collisions = 0
+                            continue
                         IOHelperObj.insert(receiverId, message)     #TODO: Check where in the queue is it inserted
-                        backoffCounterMax *= 2 #TODO: need to change
-                        backoffCounter = random.randint(0, backoffCounterMax)
+                        backoffCounterMax += 1 #TODO: need to change
+                        backoffCounterMax=max(backoffCounterMax,backoffCounterCap)
+                        backoffCounter = random.randint(0, 2**backoffCounterMax)
                     else:
                         print("Message sent successfully. ACK received\n\n")
                         sleep(1)
+                        collisions = 0
                         backoffCounter = 0
-                        backoffCounterMax = 2
+                        backoffCounterMax = 1
             else:
+
                 backoffCounter -= 1
         else:
-            IOHelperObj.relayOutput("BUSY")
-            message=receiver_dll(Id, receiver.noise)
+            # IOHelperObj.relayOutput("BUSY")
+            sender_id, message=receiver_dll(Id)
+            if sender_id > 0:
+                IOHelperObj.relayOutput(f"[RECVD] {message} {sender_id} {time.time}")
             #TODO: Print message properly
