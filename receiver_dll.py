@@ -20,8 +20,10 @@ def acknowledge(sender_id,reciever_id):
     message += list(f'{reciever_id:05b}')
     return message
 
-def receiver_dll(id:int):
+def receiver_dll(id:int, noise_power: np.ndarray):
+
     receiver = Receiver(16)
+    receiver.noise = noise_power
     sender = Sender(16)
     rts_length, rts = receiver.decode_audio_to_bits()
     print(rts)

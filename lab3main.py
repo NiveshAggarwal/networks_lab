@@ -1,6 +1,4 @@
-# import queue
 import random
-# import threading
 from sender import *
 import config
 from time import sleep
@@ -28,9 +26,10 @@ def checkACK(senderId ,receiverId ,ack) -> bool:
     senderIdGot, receiverIdGot = IdsFromCts(ack)
     return senderIdGot == senderId and receiverIdGot == receiverId
 
-def send(receiverId,message):
+def send(receiverId:int, message: list[int], noise_power: np.ndarray):
     receiver=Receiver(config.BASE)
-
+    receiver.noise = noise_power
+    
     #TODO: Should we carrier sense here?
     while receiver.carrier_sense()[0] >= 0:            
         pass
@@ -72,6 +71,7 @@ if __name__ == "__main__":
     backoffCounter = 0
     backoffCounterMax = 2
     receiver=Receiver(16)
+    receiver.calibrate()
     while True:
         #TODO: Carrier sense for DIFS before sending
         if receiver.carrier_sense(total_duration=config.DIFS)[0] < 0:
@@ -81,7 +81,7 @@ if __name__ == "__main__":
                 if receiverId == IOHelperObj.terminated:
                     break
                 elif receiverId != IOHelperObj.noInput:
-                    if send(receiverId, message) != 0:
+                    if send(receiverId, message, receiver.noise) != 0:
                         IOHelperObj.insert(receiverId, message)     #TODO: Check where in the queue is it inserted
                         backoffCounterMax *= 2 #TODO: need to change
                         backoffCounter = random.randint(0, backoffCounterMax)
@@ -89,6 +89,6 @@ if __name__ == "__main__":
                 backoffCounter -= 1
         else:
             IOHelperObj.relayOutput("BUSY")
-            message=receiver_dll(Id)
+            message=receiver_dll(Id, receiver.noise)
             #TODO: Print message properly
         # sleep(0.03)
