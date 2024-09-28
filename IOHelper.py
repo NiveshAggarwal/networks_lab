@@ -65,8 +65,7 @@ class IOHelper:
         return 0
     
     def insert(self, receiverId, message):
-        self.old_responses.append((receiverId, message))
-    
+        self.old_responses = [(receiverId, message)] + self.old_responses
 
 if __name__ == "__main__":
     from time import sleep

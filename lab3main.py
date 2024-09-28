@@ -33,9 +33,9 @@ def send(receiverId:int, message: list[int], noise_power: np.ndarray):
     receiver=Receiver(config.BASE)
     receiver.noise = noise_power
 
-    #TODO: Should we carrier sense here?
-    while receiver.carrier_sense()[0] >= 0:            
-        pass
+    # #TODO: Should we carrier sense here?
+    # while receiver.carrier_sense()[0] >= 0:            
+    #     pass
 
     sender=Sender(config.BASE)
     encoded_audio=sender.encode_bits_to_audio(bits = createRTS(Id,receiverId,len(message)))
@@ -89,6 +89,7 @@ if __name__ == "__main__":
                 if receiverId == IOHelperObj.terminated:
                     break
                 elif receiverId != IOHelperObj.noInput:
+                    print(f"ReceiverId: {receiverId}, message: {message}")
                     if send(receiverId, message, receiver.noise) != 0:
                         IOHelperObj.insert(receiverId, message)     #TODO: Check where in the queue is it inserted
                         backoffCounterMax *= 2 #TODO: need to change
@@ -104,4 +105,3 @@ if __name__ == "__main__":
             IOHelperObj.relayOutput("BUSY")
             message=receiver_dll(Id, receiver.noise)
             #TODO: Print message properly
-        # sleep(0.03)
