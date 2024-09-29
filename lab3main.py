@@ -63,6 +63,11 @@ def send(receiver: Receiver, sender: Sender, receiverId:int, message: list[int])
         sleep(decode(cts, 2)*config.BIT_DURATION)
         return -1 
 
+    if cts[0]!=1:
+        print("Message received is not a CTS\n\n")
+        sleep(decode(cts, 2)*config.BIT_DURATION)
+        return -1
+    
     sleep(config.SIFS)
     print("CTS received successfully. Sending message\n\n")
     encoded_message_audio=sender.encode_bits_to_audio(message)
