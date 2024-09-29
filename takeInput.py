@@ -32,8 +32,3 @@ if __name__ == "__main__":
             client_socket.send(receiverId.encode())
             data = ack_socket.recv(1024).decode()
             client_socket.send(message.encode())
-
-    
-    client_socket.send('-2'.encode())
-    data = ack_socket.recv(1024).decode()
-    client_socket.send(''.encode())
