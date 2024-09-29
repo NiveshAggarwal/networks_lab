@@ -44,7 +44,7 @@ def receiver_dll(id:int):
     print("RTS received successfully. Sending CTS\n\n")
     audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav))
     sender.send_audio(audio_signal)
-    print("CTS sent successfully. Waiting for message\n\n")    
+    print(f"CTS {cts(sender_id,id,nav)} sent successfully. Waiting for message\n\n")    
 
     message_length, message = receiver.decode_audio_to_bits()
     if message_length < 0:
@@ -57,7 +57,7 @@ def receiver_dll(id:int):
     
     audio_signal = sender.encode_bits_to_audio(acknowledge(sender_id,id))
     sender.send_audio(audio_signal)
-    print("ACK sent successfully\n\n")
+    print(f"ACK {acknowledge(sender_id,id)} sent successfully\n\n")
 
     return sender_id, message
 

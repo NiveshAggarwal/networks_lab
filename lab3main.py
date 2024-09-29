@@ -51,7 +51,7 @@ def send(receiverId:int, message: list[int]):
 
     encoded_audio=sender.encode_bits_to_audio(bits = createRTS(Id,receiverId,len(message)))
     sender.send_audio(encoded_audio)
-    print("RTS sent successfully. Waiting for CTS\n\n")
+    print(f"RTS {createRTS(Id,receiverId,len(message))} sent successfully. Waiting for CTS\n\n")
 
     cts_length, cts = receiver.decode_audio_to_bits() 
     if cts_length < 15:
@@ -69,7 +69,7 @@ def send(receiverId:int, message: list[int]):
     encoded_message_audio=sender.encode_bits_to_audio(message)
     sender.send_audio(encoded_message_audio)
     IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {get_ntp_time()}")
-    print("Message sent successfully. Waiting for ACK\n\n")
+    print(f"Message {message} sent successfully. Waiting for ACK\n\n")
 
     ACK_length, ACK = receiver.decode_audio_to_bits()
     if ACK_length == -1:
