@@ -53,7 +53,7 @@ def send(receiverId:int, message: list[int]):
     sender.send_audio(encoded_audio)
     print(f"RTS {createRTS(Id,receiverId,len(message))} sent successfully. Waiting for CTS\n\n")
 
-    cts_length, cts = receiver.decode_audio_to_bits() 
+    cts_length, cts = receiver.decode_audio_to_bits(max_time=config.TIMEOUT+config.SIFS) 
     if cts_length < 15:
         print("CTS not received within timeout time\n\n")
         return -1
@@ -64,13 +64,14 @@ def send(receiverId:int, message: list[int]):
         print("CTS has incorrect sender or receiver ID\n\n")
         sleep(decode(cts, 2)*config.BIT_DURATION)
         return -1 
-    print("CTS received successfully. Sending message\n\n")
 
+    sleep(config.SIFS)
+    print("CTS received successfully. Sending message\n\n")
     encoded_message_audio=sender.encode_bits_to_audio(message)
     sender.send_audio(encoded_message_audio)
     print(f"Message {message} sent successfully. Waiting for ACK\n\n")
 
-    ACK_length, ACK = receiver.decode_audio_to_bits()
+    ACK_length, ACK = receiver.decode_audio_to_bits(max_time=config.TIMEOUT+config.SIFS)
     if ACK_length == -1:
         print("ACK not received within timeout time\n\n")
         return -1
