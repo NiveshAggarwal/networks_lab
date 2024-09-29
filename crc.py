@@ -140,7 +140,7 @@ def decodeCrc(transmission, bits : int, error_bits : int = 2) :
         Returns:
             decoded (list[int]): The original message without any redundancy and errors
     '''
-    poly, degree = bitsToPoly(bits = bits)
+    poly, degree = bitsToPoly(bits = bits, error_bits = error_bits)
     transmissionInt = 0
     for bit in transmission:
         transmissionInt = 2 * transmissionInt + bit
