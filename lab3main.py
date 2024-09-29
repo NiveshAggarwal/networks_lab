@@ -81,6 +81,39 @@ def send(noise_power:np.ndarray, receiverId:int, message: list[int]):
         print("ACK has incorrect sender or receiver ID\n\n")
         return -1
     
+def send_broadcast(noise_power:np.ndarray, receiverId:int, message: list[int]):
+    receiver=Receiver(config.BASE)
+    sender=Sender(config.BASE)
+    receiver.noise = noise_power
+    encoded_audio=sender.encode_bits_to_audio(bits = createRTS(Id,receiverId,len(message)))
+    sender.send_audio(encoded_audio)
+    print(f"RTS_BROADCAST {createRTS(Id,receiverId,len(message))} sent successfully.\n\n")
+
+
+    sleep(config.SIFS)
+    encoded_message_audio=sender.encode_bits_to_audio(message)
+    sender.send_audio(encoded_message_audio)
+    print(f"Message {message} sent successfully. Waiting for ACK\n\n")
+
+
+    ackId = 1
+
+    while ackId <= 3:
+        if ackId == Id:
+            ackId += 1
+            continue
+        ACK_length, ACK = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
+        if ACK_length == -1:
+            print("ACK not received within timeout time\n\n")
+            return -1
+        if checkACK(Id, ackId, ACK):
+            IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {print_time(syncTime,syncBase)}")
+        else:
+            print("ACK has incorrect sender or receiver ID\n\n")
+            return -1
+        ackId += 1
+    
+    return 0
 
 
 if __name__ == "__main__":
@@ -110,23 +143,42 @@ if __name__ == "__main__":
                     continue
                 elif receiverId != IOHelperObj.noInput:
                     print(f"ReceiverId: {receiverId}, message: {message}")
-                    if send(receiver.noise, receiverId, message) != 0:
-                        collisions+=1
-                        if collisions > maxCollsions:
+                    if receiverId == 0:
+                        if send_broadcast(receiver.noise, receiverId, message):
+                            collisions+=1
+                            if collisions > maxCollsions:
+                                backoffCounter = 0
+                                backoffCounterMax = 1
+                                collisions = 0
+                                continue
+                            IOHelperObj.insert(receiverId, message)
+                            backoffCounterMax += 1
+                            backoffCounterMax=min(backoffCounterMax,backoffCounterCap)
+                            backoffCounter = random.randint(0, 2**backoffCounterMax)
+                        else:
+                            print("Broadcast sent successfully. ACKs received\n\n")
+                            sleep(1)
+                            collisions = 0
                             backoffCounter = 0
                             backoffCounterMax = 1
-                            collisions = 0
-                            continue
-                        IOHelperObj.insert(receiverId, message)
-                        backoffCounterMax += 1
-                        backoffCounterMax=min(backoffCounterMax,backoffCounterCap)
-                        backoffCounter = random.randint(0, 2**backoffCounterMax)
                     else:
-                        print("Message sent successfully. ACK received\n\n")
-                        sleep(1)
-                        collisions = 0
-                        backoffCounter = 0
-                        backoffCounterMax = 1
+                        if send(receiver.noise, receiverId, message) != 0:
+                            collisions+=1
+                            if collisions > maxCollsions:
+                                backoffCounter = 0
+                                backoffCounterMax = 1
+                                collisions = 0
+                                continue
+                            IOHelperObj.insert(receiverId, message)
+                            backoffCounterMax += 1
+                            backoffCounterMax=min(backoffCounterMax,backoffCounterCap)
+                            backoffCounter = random.randint(0, 2**backoffCounterMax)
+                        else:
+                            print("Message sent successfully. ACK received\n\n")
+                            sleep(1)
+                            collisions = 0
+                            backoffCounter = 0
+                            backoffCounterMax = 1
             else:
                 while receiver.carrier_sense(total_duration=config.SLOT_DURATION)[0] < 0 and backoffCounter > 0:
                     backoffCounter -= 1     #TODO: We need to reduce counter for every idle slot after waiting for DIFS

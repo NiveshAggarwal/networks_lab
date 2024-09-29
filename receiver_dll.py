@@ -3,6 +3,7 @@ from crc import *
 from sender import *
 from time import sleep
 import config
+from lab3main import checkACK
 
 
 def decode(message: list[int], index: int = 0):
@@ -24,6 +25,43 @@ def acknowledge(sender_id,reciever_id):
     message = [int(i) for i in message]
     return message
 
+
+def receiver_dll_broadcast(noise_power:np.ndarray, id:int, sender_id:int, receiver : Receiver, sender : Sender):
+
+    message_length, message = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
+    if message_length < 0:
+        print("Message not received within timeout time")
+        return -1, []
+    
+    message = [int(i) for i in message]
+    print("Message received successfully. Sending ACK\n\n")
+
+    ackId = 1
+    while ackId <= 3:
+        if ackId == sender_id:
+            ackId += 1
+            continue
+        if ackId == id:
+            sleep(config.SIFS)
+            audio_signal = sender.encode_bits_to_audio(acknowledge(sender_id,id))
+            sender.send_audio(audio_signal)
+            print(f"ACK {acknowledge(sender_id,id)} sent successfully\n\n")
+            ackId += 1
+            return sender_id, message
+        else:
+            ACK_length, ACK = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
+            if ACK_length == -1:
+                print("ACK not received within timeout time\n\n")
+                return -1, []
+            if checkACK(sender_id, ackId, ACK):
+                ackId += 1
+            else:
+                print("ACK has incorrect sender or receiver ID\n\n")
+                return -1, []
+    
+    return -1, []
+
+
 def receiver_dll(noise_power:np.ndarray, id:int):
     receiver = Receiver(config.BASE)
     sender = Sender(config.BASE)
@@ -34,6 +72,9 @@ def receiver_dll(noise_power:np.ndarray, id:int):
         return -1, []
     nav=decode(rts, 2)
     sender_id = decode(rts, 0)
+
+    if decode(rts, 1) == 0:
+        return receiver_dll_broadcast(noise_power, id, sender_id, receiver, sender)
     
     if(decode(rts,1)!=id): 
         print(f"RTS from {sender_id} not meant for me\n\n")
