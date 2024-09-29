@@ -10,7 +10,7 @@ import ntplib
 from datetime import datetime
 
 def navSlots(messageLen=2):
-    return math.ceil((messageLen+config.CTS+config.ACK+3*config.CRC)/int(np.log2(config.BASE)))+math.ceil(3*(5+5/config.BASE))+4
+    return math.ceil((messageLen+config.CTS+config.ACK+3*config.CRC)/config.LOG_BASE)+math.ceil(3*(5+5/config.LOG_BASE))+4
 
 def get_ntp_time(server='time.google.com'):
     try:
@@ -61,7 +61,7 @@ def send(noise_power:np.ndarray, receiverId:int, message: list[int]):
     senderIdGot = decode(cts, 0) 
     if senderIdGot != Id or receiverId != receiverIdGot:
         print("CTS has incorrect sender or receiver ID\n\n")
-        sleep(decode(cts, 2)*config.BIT_DURATION)
+        sleep(min(decode(cts, 2)*config.BIT_DURATION,(2*6+math.ceil((15+config.ACK +2*5+2*config.CRC)/config.LOG_BASE))*config.BIT_DURATION+config.SIFS))  
         return -1 
     print("CTS received successfully. Sending message\n\n")
 
