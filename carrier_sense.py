@@ -93,7 +93,7 @@ class Receiver:
             segment = self.receive_audio(stream, min_sense_duration, sample_rate)
             freqs, power = signal.welch(segment, sample_rate)
             for i in range(self.base+1):
-                freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
+                freq_power[i] = max(np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i]),0)
             index_max = np.argmax(freq_power)
             if np.max(freq_power) == 0:
                 threshold = -10

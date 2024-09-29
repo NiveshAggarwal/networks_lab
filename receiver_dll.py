@@ -24,10 +24,10 @@ def acknowledge(sender_id,reciever_id):
     message = [int(i) for i in message]
     return message
 
-def receiver_dll(id:int):
-
+def receiver_dll(noise_power:np.ndarray, id:int):
     receiver = Receiver(config.BASE)
     sender = Sender(config.BASE)
+    receiver.noise = noise_power
     rts_length, rts = receiver.decode_audio_to_bits()
     if rts_length < 15:
         print("RTS not received within timeout time\n\n")
