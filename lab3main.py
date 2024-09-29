@@ -9,9 +9,6 @@ import math
 import ntplib
 from datetime import datetime
 
-if __name__ == "__main__":
-    IOHelperObj = IOHelper()
-
 def navSlots(messageLen=2):
     return math.ceil((messageLen+16+10+3*15)//int(np.log2(config.BASE)))+7+7+7+4
 
@@ -19,13 +16,15 @@ def get_ntp_time(server='time.google.com'):
     try:
         ntp_client = ntplib.NTPClient()
         response = ntp_client.request(server)
-        return ctime(response.tx_time)
+        return response.tx_time
     except ntplib.NTPException as e:
-        return datetime.now().strftime('%a %b %d %H:%M:%S %Y')
+        return -1
     except Exception as e:
-        # print(f"General error: {e}")
-        return datetime.now().strftime('%a %b %d %H:%M:%S %Y')
-        
+        return -1
+    
+def print_time(syncTime, syncBase):
+    return ctime(syncTime + time.time() - syncBase)
+
 def createRTS(senderId,receiverId,messageLen):
     navT = navSlots(messageLen)
     message = list(f'{senderId:05b}')
@@ -76,7 +75,7 @@ def send(noise_power:np.ndarray, receiverId:int, message: list[int]):
         print("ACK not received within timeout time\n\n")
         return -1
     if checkACK(Id, receiverId, ACK):
-        IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {get_ntp_time()}")
+        IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {print_time(syncTime,syncBase)}")
         return 0
     else:
         print("ACK has incorrect sender or receiver ID\n\n")
@@ -85,6 +84,12 @@ def send(noise_power:np.ndarray, receiverId:int, message: list[int]):
 
 
 if __name__ == "__main__":
+    IOHelperObj = IOHelper()
+    while True:
+        syncTime = get_ntp_time()
+        syncBase= time.time()
+        if syncTime > 0:
+            break
 
     Id=int(input("Enter the ID of this device : "))
     backoffCounter = 0
@@ -159,4 +164,4 @@ if __name__ == "__main__":
         else:
             sender_id, message=receiver_dll(receiver.noise, Id)
             if sender_id > 0:
-                IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {get_ntp_time()}")
+                IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {print_time(syncTime,syncBase)}")
