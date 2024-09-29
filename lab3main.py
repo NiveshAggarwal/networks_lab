@@ -13,7 +13,7 @@ if __name__ == "__main__":
     IOHelperObj = IOHelper()
 
 def navSlots(messageLen=2):
-    return math.ceil((messageLen+16+10+3*10)//int(np.log2(config.BASE)))+7+7+7+4
+    return math.ceil((messageLen+16+10+3*15)//int(np.log2(config.BASE)))+7+7+7+4
 
 def get_ntp_time(server='time.google.com'):
     try:
