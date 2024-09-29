@@ -26,7 +26,7 @@ if __name__ == "__main__":
     client_socket.connect(('localhost', config.PORT_2))
 
     for i in range(num_inputs):
-        receiverId, message = input_array.pop()
+        receiverId, message = input_array.pop(0)
         input("Press enter to trigger message transmission")
         if int(receiverId) != -1:
             client_socket.send(receiverId.encode())
