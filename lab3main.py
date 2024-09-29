@@ -23,7 +23,7 @@ def get_ntp_time(server='time.google.com'):
         return -1
     
 def print_time(syncTime, syncBase):
-    return ctime(syncTime + time.time() - syncBase)
+    return ctime(syncTime + time() - syncBase)
 
 def createRTS(senderId,receiverId,messageLen):
     navT = navSlots(messageLen)
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     IOHelperObj = IOHelper()
     while True:
         syncTime = get_ntp_time()
-        syncBase= time.time()
+        syncBase= time()
         if syncTime > 0:
             break
 
