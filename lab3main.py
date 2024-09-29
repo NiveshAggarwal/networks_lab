@@ -7,7 +7,7 @@ from carrier_sense import *
 from IOHelper import IOHelper
 import math
 import ntplib
-import datetime
+from datetime import datetime
 
 if __name__ == "__main__":
     IOHelperObj = IOHelper()
