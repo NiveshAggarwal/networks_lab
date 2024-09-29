@@ -109,7 +109,7 @@ def send_broadcast(noise_power:np.ndarray, receiverId:int, message: list[int]):
             print("ACK not received within timeout time\n\n")
             return -1
         if checkACK(Id, ackId, ACK):
-            IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {print_time(syncTime,syncBase)}")
+            IOHelperObj.relayOutput(f"[SENT]: {message} {ackId} {print_time(syncTime,syncBase)}")
         else:
             print("ACK has incorrect sender or receiver ID\n\n")
             return -1
