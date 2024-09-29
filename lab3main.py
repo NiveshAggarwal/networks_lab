@@ -51,7 +51,7 @@ def send(receiver: Receiver, sender: Sender, receiverId:int, message: list[int])
     sender.send_audio(encoded_audio)
     print(f"RTS {createRTS(Id,receiverId,len(message))} sent successfully. Waiting for CTS\n\n")
 
-    cts_length, cts = receiver.decode_audio_to_bits(max_time=config.TIMEOUT+config.SIFS) 
+    cts_length, cts = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS) 
     if cts_length < 15:
         print("CTS not received within timeout time\n\n")
         return -1
@@ -74,7 +74,7 @@ def send(receiver: Receiver, sender: Sender, receiverId:int, message: list[int])
     sender.send_audio(encoded_message_audio)
     print(f"Message {message} sent successfully. Waiting for ACK\n\n")
 
-    ACK_length, ACK = receiver.decode_audio_to_bits(max_time=config.TIMEOUT+config.SIFS)
+    ACK_length, ACK = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
     if ACK_length == -1:
         print("ACK not received within timeout time\n\n")
         return -1

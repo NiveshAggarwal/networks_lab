@@ -49,7 +49,7 @@ def receiver_dll(receiver : Receiver , sender: Sender, id:int):
     sender.send_audio(audio_signal)
     print(f"CTS {cts(sender_id,id,nav)} sent successfully. Waiting for message\n\n")    
 
-    message_length, message = receiver.decode_audio_to_bits(max_time=config.TIMEOUT+config.SIFS)
+    message_length, message = receiver.decode_audio_to_bits(timeout=config.TIMEOUT+config.SIFS)
     if message_length < 0:
         print("Message not received within timeout time")
         return -1, []
