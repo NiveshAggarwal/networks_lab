@@ -147,7 +147,7 @@ def decodeCrc(transmission, bits : int, error_bits : int = 2) :
         decoded = transmissionInt
     else:
         possible = bruteCheck(dividend = transmissionInt, degree = degree, poly = poly, bits = bits, error_bits = error_bits)
-        if len(possible) != 1:
+        if len(possible) < 1:
             return [], False
         decoded = possible[0]
     decoded >>= degree
