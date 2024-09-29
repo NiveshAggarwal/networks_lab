@@ -236,7 +236,7 @@ class Receiver:
         print(f"Original message length: {original_message_length}")
         print(f"Transmitted message length after preamble: {len(message_after_preamble)}")
 
-        original_message, valid = decodeCrc(list(message_after_preamble.astype(int)), bits = original_message_length, error_bits = 3)
+        original_message, valid = decodeCrc(list(message_after_preamble.astype(int)), original_message_length)
         print("Message after CRC decoding: ", original_message)
 
         if not valid:

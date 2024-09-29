@@ -44,7 +44,7 @@ def receiver_dll(noise_power:np.ndarray, id:int):
     print("RTS received successfully. Sending CTS\n\n")
     audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav-11-4))
     sender.send_audio(audio_signal)
-    print(f"CTS {cts(sender_id,id,nav-11-4)} sent successfully. Waiting for message\n\n")    
+    print(f"CTS {cts(sender_id,id,nav)} sent successfully. Waiting for message\n\n")    
 
     message_length, message = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
     if message_length < 0:
