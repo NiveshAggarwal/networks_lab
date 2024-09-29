@@ -94,22 +94,23 @@ def bruteCheck(dividend : int, degree : int, poly : int, bits : int, error_bits 
             possible (list[int]): The list of all possible double/triple bit error corrected messages which makes this dividend divisible by the given polynomial
     '''
     possible = []
+    if error_bits >= 3:
+        for i in range(bits + degree - 2):
+            for j in range(i+1, bits + degree - 1):
+                for k in range(j+1, bits + degree):
+                    if polyDivision(dividend ^ (1 << i) ^ (1 << j) ^ (1 << k), poly = poly, degree = degree) == 0:
+                        possible.append(dividend ^ (1 << i) ^ (1 << j) ^ (1 << k))
+    if len(possible) == 0 and error_bits >= 2:
+        for i in range(bits + degree - 1):
+            for j in range(i+1, bits + degree):
+                if polyDivision(dividend ^ (1 << i) ^ (1 << j), poly = poly, degree = degree) == 0:
+                    possible.append(dividend ^ (1 << i) ^ (1 << j))
 
-    for i in range(bits + degree):
-        if polyDivision(dividend = dividend ^ (1 << i), poly = poly, degree = degree) == 0:
-            possible.append(dividend ^ (1 << i))
-
-    for i in range(bits + degree - 1):
-        for j in range(i+1, bits + degree):
-            if polyDivision(dividend ^ (1 << i) ^ (1 << j), poly = poly, degree = degree) == 0:
-                possible.append(dividend ^ (1 << i) ^ (1 << j))
+    if len(possible) == 0:
+        for i in range(bits + degree):
+            if polyDivision(dividend = dividend ^ (1 << i), poly = poly, degree = degree) == 0:
+                possible.append(dividend ^ (1 << i))
     
-    for i in range(bits + degree - 2):
-        for j in range(i+1, bits + degree - 1):
-            for k in range(j+1, bits + degree):
-                if polyDivision(dividend ^ (1 << i) ^ (1 << j) ^ (1 << k), poly = poly, degree = degree) == 0:
-                    possible.append(dividend ^ (1 << i) ^ (1 << j) ^ (1 << k))
-
     return possible
 
 def encodeCrc(message, error_bits : int = 2) :
