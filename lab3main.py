@@ -54,7 +54,7 @@ def send(receiverId:int, message: list[int]):
     print("RTS sent successfully. Waiting for CTS\n\n")
 
     cts_length, cts = receiver.decode_audio_to_bits() 
-    if cts_length == -1:
+    if cts_length < 15:
         print("CTS not received within timeout time\n\n")
         return -1
 
@@ -63,7 +63,7 @@ def send(receiverId:int, message: list[int]):
     if senderIdGot != Id or receiverId != receiverIdGot:
         print("CTS has incorrect sender or receiver ID\n\n")
         sleep(decode(cts, 2)*config.BIT_DURATION)
-        return -1                               # TODO: Receive CTS and wait for NAV
+        return -1 
     print("CTS received successfully. Sending message\n\n")
 
     encoded_message_audio=sender.encode_bits_to_audio(message)
@@ -120,8 +120,39 @@ if __name__ == "__main__":
                         backoffCounter = 0
                         backoffCounterMax = 1
             else:
+                while receiver.carrier_sense(total_duration=config.SLOT_DURATION)[0] < 0 and backoffCounter > 0:
+                    backoffCounter -= 1     #TODO: We need to reduce counter for every idle slot after waiting for DIFS
+                
+                if backoffCounter <= 0:
+                    receiverId, message = IOHelperObj.consumeInput()
+                    if receiverId == -1:
+                        continue
+                    elif receiverId == IOHelperObj.terminated:
+                        break
+                    elif receiverId != IOHelperObj.noInput:
+                        print(f"ReceiverId: {receiverId}, message: {message}")
+                        if send(receiverId, message) != 0:
+                            collisions+=1
+                            if collisions > maxCollsions:
+                                backoffCounter = 0
+                                backoffCounterMax = 1
+                                collisions = 0
+                                continue
+                            IOHelperObj.insert(receiverId, message)
+                            backoffCounterMax += 1
+                            backoffCounterMax=min(backoffCounterMax,backoffCounterCap)
+                            backoffCounter = random.randint(0, 2**backoffCounterMax)
+                        else:
+                            print("Message sent successfully. ACK received\n\n")
+                            sleep(1)
+                            collisions = 0
+                            backoffCounter = 0
+                            backoffCounterMax = 1
 
-                backoffCounter -= 1
+                else:
+                    sender_id, message=receiver_dll(Id)
+                    if sender_id > 0:
+                        IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {get_ntp_time()}") 
         else:
             sender_id, message=receiver_dll(Id)
             if sender_id > 0:
