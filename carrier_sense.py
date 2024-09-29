@@ -212,8 +212,9 @@ class Receiver:
                         preamble = np.append(preamble, self.index_to_bits(max_ind)[0:5-len(preamble)])
                         print("Preamble recieved. Now recieving message ... \n\n")
                         original_message_length = self.preamble_check(preamble)
-                        # transmitted_message_length = int(transmissionLength(original_message_length))  TODO: Uncomment this line
-                        transmitted_message_length = original_message_length
+                        transmitted_message_length = int(transmissionLength(original_message_length)) 
+                        # TODO: Uncomment this line
+                        # transmitted_message_length = original_message_length
                     else:
                         preamble = np.append(preamble, self.index_to_bits(max_ind))
                 else:
@@ -226,10 +227,13 @@ class Receiver:
         stream.close()
         audio.terminate()
         print("Audio reception complete: --------------------------------\n\n")
-        assert len(message_after_preamble) == original_message_length
+        assert len(message_after_preamble) == transmitted_message_length
         
         print("Preamble: ",preamble)
         print("Transmitted message after preamble:", message_after_preamble)
         print(f"Original message length: {original_message_length}")
         print(f"Transmitted message length after preamble: {len(message_after_preamble)}")
-        return original_message_length, list(message_after_preamble.astype(int))
+
+        original_message = decodeCrc(list(message_after_preamble.astype(int)), original_message_length)
+
+        return original_message_length, original_message
