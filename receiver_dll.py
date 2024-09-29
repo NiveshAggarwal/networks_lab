@@ -7,12 +7,13 @@ import config
 
 def decode(message: list[int], index: int = 0):
     if index==2:
-        return int(''.join(map(str, message[index*5:index*5+6])), 2)
+        return int(''.join(map(str, message[index*5+1:index*5+7])), 2)
     else:
-        return int(''.join(map(str, message[index*5:index*5+5])), 2)
+        return int(''.join(map(str, message[index*5+1:index*5+6])), 2)
 
 def cts(sender_id,reciever_id,nav):
-    message = list(f'{sender_id:05b}')
+    message = ['1']
+    message += list(f'{sender_id:05b}')
     message += list(f'{reciever_id:05b}')
     message += list(f'{nav:06b}')
     message = [int(i) for i in message]
@@ -37,9 +38,14 @@ def receiver_dll(receiver : Receiver , sender: Sender, id:int):
         sleep(nav*config.BIT_DURATION)  
         return -1, []
 
+    if rts[0]!=0:
+        print("Message receive is not a RTS\n\n")
+        sleep(nav*config.BIT_DURATION)
+        return -1, []
+    
     sleep(config.SIFS)
     print("RTS received successfully. Sending CTS\n\n")
-    audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav))
+    audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav-11))
     sender.send_audio(audio_signal)
     print(f"CTS {cts(sender_id,id,nav)} sent successfully. Waiting for message\n\n")    
 

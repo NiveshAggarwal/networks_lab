@@ -28,6 +28,7 @@ def get_ntp_time(server='pool.ntp.org'):
         
 def createRTS(senderId,receiverId,messageLen):
     navT = navSlots(messageLen)
+    message = ['0']
     message = list(f'{senderId:05b}')
     message += list(f'{receiverId:05b}')
     message += list(f'{navT:06b}')
@@ -61,6 +62,12 @@ def send(receiver: Receiver, sender: Sender, receiverId:int, message: list[int])
         print("CTS has incorrect sender or receiver ID\n\n")
         sleep(decode(cts, 2)*config.BIT_DURATION)
         return -1 
+    
+    if cts[0]!=1:
+        print("Message received is not a CTS\n\n")
+        sleep(decode(cts, 2)*config.BIT_DURATION)
+        return -1
+    
     print("CTS received successfully. Sending message\n\n")
 
     sleep(config.SIFS)
