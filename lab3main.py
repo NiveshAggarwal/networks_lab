@@ -45,10 +45,7 @@ def checkACK(senderId ,receiverId ,ack) -> bool:
     receiverIdGot = decode(ack, 1)
     return senderIdGot == senderId and receiverIdGot == receiverId
 
-def send(receiverId:int, message: list[int]):
-    receiver=Receiver(config.BASE)
-    sender=Sender(config.BASE)
-
+def send(receiver: Receiver, sender: Sender, receiverId:int, message: list[int]):
     encoded_audio=sender.encode_bits_to_audio(bits = createRTS(Id,receiverId,len(message)))
     sender.send_audio(encoded_audio)
     print(f"RTS {createRTS(Id,receiverId,len(message))} sent successfully. Waiting for CTS\n\n")
@@ -91,7 +88,8 @@ if __name__ == "__main__":
     collisions=0
     maxCollsions=15
     backoffCounterCap = 3       # Can be scaled it as per requirements
-    receiver=Receiver(config.BASE)
+    receiver=Receiver(base = config.BASE)
+    sender = Sender(base = config.BASE)
     while True:
         if receiver.carrier_sense(total_duration=config.DIFS)[0] < 0:
             if backoffCounter <= 0:
@@ -99,10 +97,16 @@ if __name__ == "__main__":
                 if receiverId == -1:
                     continue
                 elif receiverId == IOHelperObj.terminated:
+                    receiver.stream.stop_stream()
+                    receiver.stream.close()
+                    receiver.audio.terminate()
+                    sender.stream.stop_stream()
+                    sender.stream.close()
+                    sender.audio.terminate()
                     break
                 elif receiverId != IOHelperObj.noInput:
                     print(f"ReceiverId: {receiverId}, message: {message}")
-                    if send(receiverId, message) != 0:
+                    if send(receiver, sender, receiverId, message) != 0:
                         collisions+=1
                         if collisions > maxCollsions:
                             backoffCounter = 0
@@ -128,10 +132,11 @@ if __name__ == "__main__":
                     if receiverId == -1:
                         continue
                     elif receiverId == IOHelperObj.terminated:
+
                         break
                     elif receiverId != IOHelperObj.noInput:
                         print(f"ReceiverId: {receiverId}, message: {message}")
-                        if send(receiverId, message) != 0:
+                        if send(receiver, sender, receiverId, message) != 0:
                             collisions+=1
                             if collisions > maxCollsions:
                                 backoffCounter = 0
@@ -150,10 +155,10 @@ if __name__ == "__main__":
                             backoffCounterMax = 1
 
                 else:
-                    sender_id, message=receiver_dll(Id)
+                    sender_id, message=receiver_dll(receiver, sender, Id)
                     if sender_id > 0:
                         IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}") 
         else:
-            sender_id, message=receiver_dll(Id)
+            sender_id, message=receiver_dll(receiver, sender, Id)
             if sender_id > 0:
                 IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}")
