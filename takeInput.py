@@ -1,22 +1,20 @@
 import socket
 import time
-import threading
-import queue
 import sys
 import config
 
-messageQueue = queue.Queue(maxsize=1024)
+if __name__ == "__main__":
+ 
+    num_inputs = int(input("Enter number of messages to be sent : "))
 
+    input_array = []
 
-def takeInput():
-    while True:
-        sys.stdout.write("\rEnter the receiverId please: ")
-        receiverId : int = input()
-        message = input("Enter the message please: ")
-        messageQueue.put((receiverId, message))
+    for i in range(num_inputs):
+        receiverId_message = input('Enter first line of input : ')
+        message = receiverId_message.split(' ')[0]
+        receiverId = receiverId_message.split(' ')[1]
+        input_array.append((receiverId, message))
 
-
-def send_input():
     ack_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ack_client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     ack_client_socket.bind(('localhost', config.PORT_1))
@@ -27,31 +25,15 @@ def send_input():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect(('localhost', config.PORT_2))
 
-    while True:
-        if messageQueue.qsize() > 0:
-            receiverId, message = messageQueue.get(block = False)
-            messageQueue.task_done()
-
+    for i in range(num_inputs):
+        receiverId, message = input_array.pop()
+        input("Press enter to trigger message transmission")
+        if int(receiverId) != -1:
             client_socket.send(receiverId.encode())
             data = ack_socket.recv(1024).decode()
             client_socket.send(message.encode())
-            # data = ack_socket.recv(1024).decode()
 
-            if int(receiverId) < -1:
-                client_socket.close()
-                ack_socket.close()
-                ack_client_socket.close()
-                break
-        else:
-            time.sleep(0.5)
-
-
-if __name__ == "__main__":
-    thread_1 = threading.Thread(target=takeInput)
-    thread_2 = threading.Thread(target=send_input)
-
-    thread_1.start()
-    thread_2.start()
-
-    thread_1.join()
-    thread_2.join()
+    
+    client_socket.send('-2'.encode())
+    data = ack_socket.recv(1024).decode()
+    client_socket.send(''.encode())
