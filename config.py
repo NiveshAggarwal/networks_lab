@@ -1,5 +1,6 @@
+import math
 BASE = 8
-LOG_BASE = 3
+LOG_BASE = int(math.log2(BASE))
 F_LOW = 2000
 F_DIFF = 400
 BIT_DURATION = 0.3
