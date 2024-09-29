@@ -80,7 +80,7 @@ class Sender:
 
         transmission=np.array([1,1,1,1,1,-1])                                           # special sequence
         transmission = np.append(transmission, self.convert_list(self.convert_int_to_binary(len(message)), base))  #preamble   
-        transmission = np.append(transmission, self.convert_list(encodeCrc(message), base))    # tranmission message
+        transmission = np.append(transmission, self.convert_list(encodeCrc(message, error_bits = 3), base))    # tranmission message
         return transmission
 
     def encode_bits_to_audio(self, bits: np.ndarray, sample_rate: int = 44100, duration: float = 0.3, amplitude: float =1)-> np.ndarray:
