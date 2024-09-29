@@ -151,4 +151,4 @@ def decodeCrc(transmission, bits : int, error_bits : int = 2) :
             return [], False
         decoded = possible[0]
     decoded >>= degree
-    return [(decoded >> i) & 1 for i in range(bits - 1, -1, -1)]
+    return [(decoded >> i) & 1 for i in range(bits - 1, -1, -1)], True
