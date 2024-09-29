@@ -28,7 +28,6 @@ def get_ntp_time(server='pool.ntp.org'):
         
 def createRTS(senderId,receiverId,messageLen):
     navT = navSlots(messageLen)
-    message = ['0']
     message = list(f'{senderId:05b}')
     message += list(f'{receiverId:05b}')
     message += list(f'{navT:06b}')
@@ -46,7 +45,10 @@ def checkACK(senderId ,receiverId ,ack) -> bool:
     receiverIdGot = decode(ack, 1)
     return senderIdGot == senderId and receiverIdGot == receiverId
 
-def send(receiver: Receiver, sender: Sender, receiverId:int, message: list[int]):
+def send(receiverId:int, message: list[int]):
+    receiver=Receiver(config.BASE)
+    sender=Sender(config.BASE)
+
     encoded_audio=sender.encode_bits_to_audio(bits = createRTS(Id,receiverId,len(message)))
     sender.send_audio(encoded_audio)
     print(f"RTS {createRTS(Id,receiverId,len(message))} sent successfully. Waiting for CTS\n\n")
@@ -62,14 +64,9 @@ def send(receiver: Receiver, sender: Sender, receiverId:int, message: list[int])
         print("CTS has incorrect sender or receiver ID\n\n")
         sleep(decode(cts, 2)*config.BIT_DURATION)
         return -1 
-
-    if cts[0]!=1:
-        print("Message received is not a CTS\n\n")
-        sleep(decode(cts, 2)*config.BIT_DURATION)
-        return -1
-    
-    sleep(config.SIFS)
     print("CTS received successfully. Sending message\n\n")
+
+    sleep(config.SIFS)
     encoded_message_audio=sender.encode_bits_to_audio(message)
     sender.send_audio(encoded_message_audio)
     print(f"Message {message} sent successfully. Waiting for ACK\n\n")
@@ -95,8 +92,7 @@ if __name__ == "__main__":
     collisions=0
     maxCollsions=15
     backoffCounterCap = 3       # Can be scaled it as per requirements
-    receiver=Receiver(base = config.BASE)
-    sender = Sender(base = config.BASE)
+    receiver=Receiver(config.BASE)
     while True:
         if receiver.carrier_sense(total_duration=config.DIFS)[0] < 0:
             if backoffCounter <= 0:
@@ -104,16 +100,10 @@ if __name__ == "__main__":
                 if receiverId == -1:
                     continue
                 elif receiverId == IOHelperObj.terminated:
-                    receiver.stream.stop_stream()
-                    receiver.stream.close()
-                    receiver.audio.terminate()
-                    sender.stream.stop_stream()
-                    sender.stream.close()
-                    sender.audio.terminate()
                     break
                 elif receiverId != IOHelperObj.noInput:
                     print(f"ReceiverId: {receiverId}, message: {message}")
-                    if send(receiver, sender, receiverId, message) != 0:
+                    if send(receiverId, message) != 0:
                         collisions+=1
                         if collisions > maxCollsions:
                             backoffCounter = 0
@@ -139,11 +129,10 @@ if __name__ == "__main__":
                     if receiverId == -1:
                         continue
                     elif receiverId == IOHelperObj.terminated:
-
                         break
                     elif receiverId != IOHelperObj.noInput:
                         print(f"ReceiverId: {receiverId}, message: {message}")
-                        if send(receiver, sender, receiverId, message) != 0:
+                        if send(receiverId, message) != 0:
                             collisions+=1
                             if collisions > maxCollsions:
                                 backoffCounter = 0
@@ -162,10 +151,10 @@ if __name__ == "__main__":
                             backoffCounterMax = 1
 
                 else:
-                    sender_id, message=receiver_dll(receiver, sender, Id)
+                    sender_id, message=receiver_dll(Id)
                     if sender_id > 0:
                         IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}") 
         else:
-            sender_id, message=receiver_dll(receiver, sender, Id)
+            sender_id, message=receiver_dll(Id)
             if sender_id > 0:
                 IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}")

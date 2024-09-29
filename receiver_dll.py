@@ -7,13 +7,12 @@ import config
 
 def decode(message: list[int], index: int = 0):
     if index==2:
-        return int(''.join(map(str, message[index*5+1:index*5+7])), 2)
+        return int(''.join(map(str, message[index*5:index*5+6])), 2)
     else:
-        return int(''.join(map(str, message[index*5+1:index*5+6])), 2)
+        return int(''.join(map(str, message[index*5:index*5+5])), 2)
 
 def cts(sender_id,reciever_id,nav):
-    message = ['1']
-    message += list(f'{sender_id:05b}')
+    message = list(f'{sender_id:05b}')
     message += list(f'{reciever_id:05b}')
     message += list(f'{nav:06b}')
     message = [int(i) for i in message]
@@ -25,7 +24,10 @@ def acknowledge(sender_id,reciever_id):
     message = [int(i) for i in message]
     return message
 
-def receiver_dll(receiver : Receiver , sender: Sender, id:int):
+def receiver_dll(id:int):
+
+    receiver = Receiver(config.BASE)
+    sender = Sender(config.BASE)
     rts_length, rts = receiver.decode_audio_to_bits()
     if rts_length < 15:
         print("RTS not received within timeout time\n\n")
@@ -38,18 +40,13 @@ def receiver_dll(receiver : Receiver , sender: Sender, id:int):
         sleep(nav*config.BIT_DURATION)  
         return -1, []
 
-    if rts[0]!=0:
-        print("Message receive is not a RTS\n\n")
-        sleep(nav*config.BIT_DURATION)
-        return -1, []
-    
     sleep(config.SIFS)
     print("RTS received successfully. Sending CTS\n\n")
     audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav-11))
     sender.send_audio(audio_signal)
     print(f"CTS {cts(sender_id,id,nav)} sent successfully. Waiting for message\n\n")    
 
-    message_length, message = receiver.decode_audio_to_bits(timeout=config.TIMEOUT+config.SIFS)
+    message_length, message = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
     if message_length < 0:
         print("Message not received within timeout time")
         return -1, []
