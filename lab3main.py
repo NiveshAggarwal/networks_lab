@@ -10,7 +10,7 @@ import ntplib
 from datetime import datetime
 
 def navSlots(messageLen=2):
-    return math.ceil((messageLen+16+10+3*15)//int(np.log2(config.BASE)))+7+7+7+4
+    return math.ceil((messageLen+config.CTS+config.ACK+3*config.CRC)/int(np.log2(config.BASE)))+math.ceil(3*(5+5/config.BASE))+4
 
 def get_ntp_time(server='time.google.com'):
     try:
@@ -29,13 +29,13 @@ def createRTS(senderId,receiverId,messageLen):
     navT = navSlots(messageLen)
     message = list(f'{senderId:05b}')
     message += list(f'{receiverId:05b}')
-    message += list(f'{navT:06b}')
+    message += list(f'{navT:10b}')
     message = [int(i) for i in message]
     return message
 
 def decode(message: list[int], index: int = 0):
     if index==2:
-        return int(''.join(map(str, message[index*5:index*5+6])), 2)
+        return int(''.join(map(str, message[index*5:index*5+10])), 2)
     else:
         return int(''.join(map(str, message[index*5:index*5+5])), 2)
 

@@ -7,14 +7,14 @@ import config
 
 def decode(message: list[int], index: int = 0):
     if index==2:
-        return int(''.join(map(str, message[index*5:index*5+6])), 2)
+        return int(''.join(map(str, message[index*5:index*5+10])), 2)
     else:
         return int(''.join(map(str, message[index*5:index*5+5])), 2)
 
 def cts(sender_id,reciever_id,nav):
     message = list(f'{sender_id:05b}')
     message += list(f'{reciever_id:05b}')
-    message += list(f'{nav:06b}')
+    message += list(f'{nav:10b}')
     message = [int(i) for i in message]
     return message
 
@@ -42,7 +42,7 @@ def receiver_dll(noise_power:np.ndarray, id:int):
 
     sleep(config.SIFS)
     print("RTS received successfully. Sending CTS\n\n")
-    audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav-11-4))
+    audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav-(config.CTS//config.BASE+5+(5//config.BASE))))
     sender.send_audio(audio_signal)
     print(f"CTS {cts(sender_id,id,nav-11-4)} sent successfully. Waiting for message\n\n")    
 
