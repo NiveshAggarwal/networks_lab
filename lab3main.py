@@ -7,6 +7,7 @@ from carrier_sense import *
 from IOHelper import IOHelper
 import math
 import ntplib
+import datetime
 
 if __name__ == "__main__":
     IOHelperObj = IOHelper()
@@ -14,17 +15,16 @@ if __name__ == "__main__":
 def navSlots(messageLen=2):
     return math.ceil((messageLen+16+10)//int(np.log2(config.BASE)))+7+7+7+4
 
-def get_ntp_time(server='pool.ntp.org'):
+def get_ntp_time(server='time.google.com'):
     try:
         ntp_client = ntplib.NTPClient()
         response = ntp_client.request(server)
         return ctime(response.tx_time)
     except ntplib.NTPException as e:
-        print(f"NTP error: {e}")
-        return -1
+        return datetime.now().strftime('%a %b %d %H:%M:%S %Y')
     except Exception as e:
-        print(f"General error: {e}")
-        return -1
+        # print(f"General error: {e}")
+        return datetime.now().strftime('%a %b %d %H:%M:%S %Y')
         
 def createRTS(senderId,receiverId,messageLen):
     navT = navSlots(messageLen)
@@ -76,7 +76,7 @@ def send(receiverId:int, message: list[int]):
         print("ACK not received within timeout time\n\n")
         return -1
     if checkACK(Id, receiverId, ACK):
-        IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {time()}")
+        IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {get_ntp_time()}")
         return 0
     else:
         print("ACK has incorrect sender or receiver ID\n\n")
@@ -153,8 +153,8 @@ if __name__ == "__main__":
                 else:
                     sender_id, message=receiver_dll(Id)
                     if sender_id > 0:
-                        IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}") 
+                        IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {get_ntp_time()}") 
         else:
             sender_id, message=receiver_dll(Id)
             if sender_id > 0:
-                IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}")
+                IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {get_ntp_time()}")
