@@ -37,7 +37,7 @@ def send_input():
             client_socket.send(message.encode())
             # data = ack_socket.recv(1024).decode()
 
-            if int(receiverId) < 0:
+            if int(receiverId) < -1:
                 client_socket.close()
                 ack_socket.close()
                 ack_client_socket.close()
@@ -49,12 +49,9 @@ def send_input():
 if __name__ == "__main__":
     thread_1 = threading.Thread(target=takeInput)
     thread_2 = threading.Thread(target=send_input)
-    # thread_3 = threading.Thread(target=printOutput)
 
     thread_1.start()
     thread_2.start()
-    # thread_3.start()
 
     thread_1.join()
     thread_2.join()
-    # thread_3.join()

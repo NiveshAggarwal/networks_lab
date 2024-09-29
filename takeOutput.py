@@ -21,11 +21,12 @@ def printOutput():
         ack_socket.send(data)
         data = data.decode()
         if data == "TERMINATE":
+            output_socket.close()
+            ack_socket.close()
+            output_client_socket.close()
             break
         if data:
-            # sys.stdout.write('\r'+data)
             print(data)
-            # sys.stdout.write("\rEnter the receiverId please: ")
             
 if __name__ == "__main__":
     printOutput()

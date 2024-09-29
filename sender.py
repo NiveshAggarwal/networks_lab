@@ -5,10 +5,15 @@ import config
 
 class Sender:
 
-    def __init__(self, base):
+    def __init__(self, base, sample_rate: int = 44100):
         self.base = base
         self.diff = config.F_DIFF
         self.frequencies = np.arange(config.F_LOW, config.F_LOW + self.diff * (self.base+1) , self.diff)
+        self.audio = pyaudio.PyAudio()
+        self.stream = self.audio.open(format=pyaudio.paFloat32,
+                            channels=1,
+                            rate=sample_rate,
+                            output=True)
 
     def generate_waves(self, frequency: int, duration: float, sample_rate: int = 44100, amplitude: float=1) -> np.ndarray:
         '''
@@ -104,16 +109,4 @@ class Sender:
             audio_signal (np.ndarray): Numpy array containing the audio signal
             sample_rate (int): Sampling rate in Hz
         """
-
-        audio = pyaudio.PyAudio()
-        
-        stream = audio.open(format=pyaudio.paFloat32,
-                            channels=1,
-                            rate=sample_rate,
-                            output=True)
-        
-
-        stream.write(audio_signal.astype(np.float32).tobytes())
-        stream.stop_stream()
-        stream.close()
-        audio.terminate()
+        self.stream.write(audio_signal.astype(np.float32).tobytes())
