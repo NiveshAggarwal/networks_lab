@@ -29,7 +29,7 @@ class IOHelper:
         self.old_responses = []
     
     def consumeInput(self):
-        if isTerminated:
+        if self.isTerminated:
             return (self.terminated, [])
         if len(self.old_responses) > 0:
             return self.old_responses.pop(0)
