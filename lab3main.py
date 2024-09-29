@@ -107,7 +107,7 @@ if __name__ == "__main__":
                 if receiverId == -1:
                     continue
                 elif receiverId == IOHelperObj.terminated:
-                    break
+                    continue
                 elif receiverId != IOHelperObj.noInput:
                     print(f"ReceiverId: {receiverId}, message: {message}")
                     if send(receiver.noise, receiverId, message) != 0:
@@ -136,7 +136,7 @@ if __name__ == "__main__":
                     if receiverId == -1:
                         continue
                     elif receiverId == IOHelperObj.terminated:
-                        break
+                        continue
                     elif receiverId != IOHelperObj.noInput:
                         print(f"ReceiverId: {receiverId}, message: {message}")
                         if send(receiver.noise, receiverId, message) != 0:
