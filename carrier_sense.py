@@ -95,8 +95,11 @@ class Receiver:
             for i in range(self.base+1):
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
             index_max = np.argmax(freq_power)
-            threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*(self.base+1)/self.base) + config.THRESHOLD #TODO: change threshold
-            if np.log10(np.max(freq_power)) >= threshold:
+            if np.max(freq_power) == 0:
+                threshold = -10
+            else:
+                threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*(self.base+1)/self.base) + config.THRESHOLD #TODO: change threshold
+            if np.max(freq_power)!=0 and np.log10(np.max(freq_power)) >= threshold:
                 stream.stop_stream()
                 stream.close()
                 audio.terminate()
