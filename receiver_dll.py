@@ -42,7 +42,7 @@ def receiver_dll(id:int):
 
     sleep(config.SIFS)
     print("RTS received successfully. Sending CTS\n\n")
-    audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav-11))
+    audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav-11-3))
     sender.send_audio(audio_signal)
     print(f"CTS {cts(sender_id,id,nav)} sent successfully. Waiting for message\n\n")    
 
