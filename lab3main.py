@@ -146,7 +146,7 @@ if __name__ == "__main__":
                 elif receiverId != IOHelperObj.noInput:
                     print(f"ReceiverId: {receiverId}, message: {message}")
                     if receiverId == 0:
-                        if send_broadcast(receiver.noise, receiverId, message):
+                        if send_broadcast(receiver.noise, receiverId, message) != 0:
                             collisions+=1
                             if collisions > maxCollsions:
                                 backoffCounter = 0
