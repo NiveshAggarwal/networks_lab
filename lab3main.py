@@ -29,7 +29,7 @@ def createRTS(senderId,receiverId,messageLen):
     navT = navSlots(messageLen)
     message = list(f'{senderId:05b}')
     message += list(f'{receiverId:05b}')
-    message += list(f'{navT:10b}')
+    message += list(f'{navT:010b}')
     message = [int(i) for i in message]
     return message
 
