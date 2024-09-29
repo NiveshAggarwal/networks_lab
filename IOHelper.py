@@ -36,7 +36,7 @@ class IOHelper:
             receiverId = self.trial_socket.recv(1024).decode()
             self.ack_socket.send(receiverId.encode())
             message = self.trial_socket.recv(1024).decode()
-            if int(receiverId) < -1:
+            if receiverId == '':
                 self.ack_socket.close()
                 self.trial_socket.close()
                 self.trial_server_socket.close()
