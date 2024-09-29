@@ -68,7 +68,7 @@ def send(receiverId:int, message: list[int]):
 
     encoded_message_audio=sender.encode_bits_to_audio(message)
     sender.send_audio(encoded_message_audio)
-    IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {get_ntp_time()}")
+    IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {time()}")
     print(f"Message {message} sent successfully. Waiting for ACK\n\n")
 
     ACK_length, ACK = receiver.decode_audio_to_bits()
@@ -152,8 +152,8 @@ if __name__ == "__main__":
                 else:
                     sender_id, message=receiver_dll(Id)
                     if sender_id > 0:
-                        IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {get_ntp_time()}") 
+                        IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}") 
         else:
             sender_id, message=receiver_dll(Id)
             if sender_id > 0:
-                IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {get_ntp_time()}")
+                IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {time()}")
