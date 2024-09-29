@@ -60,7 +60,7 @@ def send(noise_power:np.ndarray, receiverId:int, message: list[int]):
     receiverIdGot = decode(cts, 1)
     senderIdGot = decode(cts, 0) 
     if senderIdGot != Id or receiverId != receiverIdGot:
-        if(receiverId>3 or senderIdGot>3):
+        if(receiverId>3 or senderIdGot>3 or receiverIdGot==0 or senderIdGot==0):
             return -1
         print("CTS has incorrect sender or receiver ID\n\n")
         sleep(min(decode(cts, 2)*config.BIT_DURATION,(2*6+math.ceil((15+config.ACK +2*5+2*config.CRC)/config.LOG_BASE))*config.BIT_DURATION+config.SIFS))  

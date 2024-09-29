@@ -77,7 +77,7 @@ def receiver_dll(noise_power:np.ndarray, id:int):
         return receiver_dll_broadcast(noise_power, id, sender_id, receiver, sender)
     
     if(decode(rts,1)!=id):
-        if(decode(rts,0)>3):
+        if(decode(rts,0)>3  or decode(rts,0)<1 or decode(rts,1)>3):
             return -1, [] 
         print(f"RTS from {sender_id} not meant for me\n\n")
         sleep(min(nav*config.BIT_DURATION,(2*6+math.ceil((15+config.ACK +3*5+3*config.CRC)/config.LOG_BASE))*config.BIT_DURATION+2*config.SIFS))  
