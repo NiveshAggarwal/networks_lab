@@ -43,7 +43,6 @@ class IOHelper:
                 self.trial_socket.close()
                 self.trial_server_socket.close()
                 self.isTerminated = True
-                self.relayOutput("TERMINATED")
                 return (self.terminated, [])
             return (int(receiverId), [int(i) for i in message])
         else:
