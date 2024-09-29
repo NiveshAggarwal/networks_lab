@@ -68,7 +68,6 @@ def send(receiverId:int, message: list[int]):
 
     encoded_message_audio=sender.encode_bits_to_audio(message)
     sender.send_audio(encoded_message_audio)
-    IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {time()}")
     print(f"Message {message} sent successfully. Waiting for ACK\n\n")
 
     ACK_length, ACK = receiver.decode_audio_to_bits()
@@ -76,6 +75,7 @@ def send(receiverId:int, message: list[int]):
         print("ACK not received within timeout time\n\n")
         return -1
     if checkACK(Id, receiverId, ACK):
+        IOHelperObj.relayOutput(f"[SENT]: {message} {receiverId} {time()}")
         return 0
     else:
         print("ACK has incorrect sender or receiver ID\n\n")
