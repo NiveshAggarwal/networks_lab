@@ -29,6 +29,8 @@ class IOHelper:
         self.old_responses = []
     
     def consumeInput(self):
+        if isTerminated:
+            return (self.terminated, [])
         if len(self.old_responses) > 0:
             return self.old_responses.pop(0)
         readable, _, _ = select.select([self.trial_socket], [], [], 0.03)
