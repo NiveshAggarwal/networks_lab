@@ -14,7 +14,7 @@ def decode(message: list[int], index: int = 0):
 def cts(sender_id,reciever_id,nav):
     message = list(f'{sender_id:05b}')
     message += list(f'{reciever_id:05b}')
-    message += list(f'{nav:10b}')
+    message += list(f'{nav:010b}')
     message = [int(i) for i in message]
     return message
 
