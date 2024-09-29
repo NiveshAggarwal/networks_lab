@@ -63,6 +63,7 @@ def send(receiver: Receiver, sender: Sender, receiverId:int, message: list[int])
         return -1 
     print("CTS received successfully. Sending message\n\n")
 
+    sleep(config.SIFS)
     encoded_message_audio=sender.encode_bits_to_audio(message)
     sender.send_audio(encoded_message_audio)
     print(f"Message {message} sent successfully. Waiting for ACK\n\n")
