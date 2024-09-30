@@ -10,7 +10,7 @@ import ntplib
 from datetime import datetime
 
 def navSlots(messageLen=2):
-    return math.ceil((messageLen+config.CTS+config.ACK+3*config.CRC)/config.LOG_BASE)+math.ceil(3*(5+5/config.LOG_BASE))+4
+    return math.ceil((messageLen+config.CTS+config.ACK+3*config.CRC)/config.LOG_BASE)+math.ceil(3*(6+5/config.LOG_BASE))+4
 
 def get_ntp_time(server='time.google.com'):
     try:
