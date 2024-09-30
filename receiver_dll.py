@@ -38,7 +38,7 @@ def receiver_dll_broadcast(id:int, sender_id:int, receiver : Receiver, sender : 
     print("Message received successfully. Sending ACK\n\n")
 
     ackId = 1
-    while ackId <= 3:
+    while ackId <= 2:
         if ackId == sender_id:
             ackId += 1
             continue

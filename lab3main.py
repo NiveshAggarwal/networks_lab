@@ -100,7 +100,7 @@ def send_broadcast(noise_power:np.ndarray, receiverId:int, message: list[int]):
 
     ackId = 1
 
-    while ackId <= 3:
+    while ackId <= 2:
         if ackId == Id:
             ackId += 1
             continue
