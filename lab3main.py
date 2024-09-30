@@ -100,8 +100,8 @@ def send_broadcast(noise_power:np.ndarray, receiverId:int, message: list[int]):
 
     ackId = 1
 
-    while ackId <= 3:
-        if ackId == Id:
+    while ackId <= 4:
+        if ackId == Id or ackId == 3:
             ackId += 1
             continue
         ACK_length, ACK = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
