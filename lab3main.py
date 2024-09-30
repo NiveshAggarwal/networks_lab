@@ -10,7 +10,7 @@ import ntplib
 from datetime import datetime
 
 def navSlots(messageLen=2):
-    return math.ceil((messageLen+config.CTS+config.ACK+3*config.CRC)/config.LOG_BASE)+math.ceil(3*(6+5/config.LOG_BASE))+4
+    return math.ceil((messageLen+config.CTS+config.ACK+3*config.CRC)/config.LOG_BASE)+math.ceil(3*(6+5/config.LOG_BASE))
 
 def get_ntp_time(server='time.google.com'):
     try:
@@ -159,7 +159,7 @@ if __name__ == "__main__":
                             backoffCounter = random.randint(0, 2**backoffCounterMax)
                         else:
                             print("Broadcast sent successfully. ACKs received\n\n")
-                            sleep(1)
+                            # sleep(1)
                             collisions = 0
                             backoffCounter = 0
                             backoffCounterMax = 1
@@ -177,7 +177,7 @@ if __name__ == "__main__":
                             backoffCounter = random.randint(0, 2**backoffCounterMax)
                         else:
                             print("Message sent successfully. ACK received\n\n")
-                            sleep(1)
+                            # sleep(1)
                             collisions = 0
                             backoffCounter = 0
                             backoffCounterMax = 1
@@ -207,7 +207,7 @@ if __name__ == "__main__":
                                 backoffCounter = random.randint(0, 2**backoffCounterMax)
                             else:
                                 print("Broadcast sent successfully. ACKs received\n\n")
-                                sleep(1)
+                                # sleep(1)
                                 collisions = 0
                                 backoffCounter = 0
                                 backoffCounterMax = 1
@@ -226,7 +226,7 @@ if __name__ == "__main__":
                                 backoffCounter = random.randint(0, 2**backoffCounterMax)
                             else:
                                 print("Message sent successfully. ACK received\n\n")
-                                sleep(1)
+                                # sleep(1)
                                 collisions = 0
                                 backoffCounter = 0
                                 backoffCounterMax = 1
