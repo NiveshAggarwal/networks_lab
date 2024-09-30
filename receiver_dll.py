@@ -27,7 +27,7 @@ def acknowledge(sender_id,reciever_id):
     return message
 
 
-def receiver_dll_broadcast(noise_power:np.ndarray, id:int, sender_id:int, receiver : Receiver, sender : Sender):
+def receiver_dll_broadcast(id:int, sender_id:int, receiver : Receiver, sender : Sender):
 
     message_length, message = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
     if message_length < 0:
@@ -52,7 +52,7 @@ def receiver_dll_broadcast(noise_power:np.ndarray, id:int, sender_id:int, receiv
         else:
             ACK_length, ACK = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
             if ACK_length == -1:
-                print("ACK not received within timeout time\n\n")
+                print(f"ACK of {ackId} not received within timeout time\n\n")
                 return -1, []
             if checkACK(sender_id, ackId, ACK):
                 ackId += 1
@@ -75,7 +75,7 @@ def receiver_dll(noise_power:np.ndarray, id:int):
     sender_id = decode(rts, 0)
 
     if decode(rts, 1) == 0:
-        return receiver_dll_broadcast(noise_power, id, sender_id, receiver, sender)
+        return receiver_dll_broadcast(id, sender_id, receiver, sender)
     
     if(decode(rts,1)!=id):
         print(f"RTS from {sender_id} not meant for me\n\n")
