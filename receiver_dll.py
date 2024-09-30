@@ -4,6 +4,7 @@ from sender import *
 from time import sleep
 import config
 from lab3main import checkACK
+import math
 
 
 def decode(message: list[int], index: int = 0):
@@ -77,17 +78,17 @@ def receiver_dll(noise_power:np.ndarray, id:int):
         return receiver_dll_broadcast(noise_power, id, sender_id, receiver, sender)
     
     if(decode(rts,1)!=id):
+        print(f"RTS from {sender_id} not meant for me\n\n")
         if(decode(rts,0)>3  or decode(rts,0)<1 or decode(rts,1)>3):
             return -1, [] 
-        print(f"RTS from {sender_id} not meant for me\n\n")
         sleep(min(nav*config.BIT_DURATION,(2*6+math.ceil((15+config.ACK +3*5+3*config.CRC)/config.LOG_BASE))*config.BIT_DURATION+2*config.SIFS))  
         return -1, []
 
-    sleep(config.SIFS)
     print("RTS received successfully. Sending CTS\n\n")
-    audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav-(config.CTS//config.LOG_BASE+5+(5//config.LOG_BASE))))
+    sleep(config.SIFS)
+    audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav-(6+(math.ceil((config.CTS+5+config.CRC)/config.LOG_BASE))*config.BIT_DURATION+config.SIFS)))
     sender.send_audio(audio_signal)
-    print(f"CTS {cts(sender_id,id,nav-11-4)} sent successfully. Waiting for message\n\n")    
+    print(f"CTS {cts(sender_id,id,nav-(6+(math.ceil((config.CTS+5+config.CRC)/config.LOG_BASE))*config.BIT_DURATION+config.SIFS))} sent successfully. Waiting for message\n\n")    
 
     message_length, message = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
     if message_length < 0:
