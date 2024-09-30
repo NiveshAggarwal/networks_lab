@@ -86,6 +86,7 @@ def receiver_dll(noise_power:np.ndarray, id:int):
 
     print("RTS received successfully. Sending CTS\n\n")
     sleep(config.SIFS)
+    print(nav-(6+(math.ceil((config.CTS+5+config.CRC)/config.LOG_BASE))))
     audio_signal = sender.encode_bits_to_audio(cts(sender_id,id,nav-(6+(math.ceil((config.CTS+5+config.CRC)/config.LOG_BASE)))))
     sender.send_audio(audio_signal)
     print(f"CTS {cts(sender_id,id,nav-(6+(math.ceil((config.CTS+5+config.CRC)/config.LOG_BASE))))} sent successfully. Waiting for message\n\n")    
