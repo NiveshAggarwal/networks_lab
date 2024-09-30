@@ -9,7 +9,7 @@ class Receiver:
     def __init__(self, base):
         self.base= base
         self.diff = config.F_DIFF
-        self.freq = np.arange(config.F_LOW, config.F_LOW + self.diff * (self.base+1) , self.diff)
+        self.freq = np.arange(config.F_LOW, config.F_LOW + self.diff * (self.base+2) , self.diff)
         self.noise=np.array([0.0]*(self.base+1))
 
     def open_audio_stream(self, sample_rate: int = 44100):
