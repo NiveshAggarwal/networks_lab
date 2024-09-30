@@ -3,7 +3,7 @@ from crc import *
 from sender import *
 from time import sleep
 import config
-from lab3main import checkACK
+from main import checkACK
 import math
 
 
