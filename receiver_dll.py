@@ -51,7 +51,7 @@ def receiver_dll_broadcast(id:int, sender_id:int, receiver : Receiver, sender : 
             return sender_id, message
         else:
             ACK_length, ACK = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
-            if ACK_length == -1:
+            if ACK_length < 10:
                 print(f"ACK of {ackId} not received within timeout time\n\n")
                 return -1, []
             if checkACK(sender_id, ackId, ACK):

@@ -105,7 +105,7 @@ def send_broadcast(noise_power:np.ndarray, receiverId:int, message: list[int]):
             ackId += 1
             continue
         ACK_length, ACK = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
-        if ACK_length == -1:
+        if ACK_length < 10:
             print(f"ACK of {ackId} not received within timeout time\n\n")
             return -1
         if checkACK(Id, ackId, ACK):
