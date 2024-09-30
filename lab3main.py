@@ -100,7 +100,7 @@ def send_broadcast(noise_power:np.ndarray, receiverId:int, message: list[int]):
 
     ackId = 1
 
-    while ackId <= 3:
+    while ackId <= 2:
         if ackId == Id :
             ackId += 1
             continue
@@ -234,7 +234,7 @@ if __name__ == "__main__":
                 else:
                     sender_id, message=receiver_dll(receiver.noise, Id)
                     if sender_id > 0:
-                        IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {get_ntp_time()}") 
+                        IOHelperObj.relayOutput(f"[RECVD]: {message} {sender_id} {print_time(syncTime,syncBase)}") 
         else:
             sender_id, message=receiver_dll(receiver.noise, Id)
             if sender_id > 0:
