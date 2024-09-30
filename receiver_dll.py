@@ -8,12 +8,35 @@ import math
 
 
 def decode(message: list[int], index: int = 0):
+    """
+    Decode a message to an integer.
+
+    Parameters:
+        message (list[int]): Message to decode
+        index (int): Index of the integer in the message
+
+    Returns:
+        int: Decoded integer
+
+    """
     if index==2:
         return int(''.join(map(str, message[index*5:index*5+10])), 2)
     else:
         return int(''.join(map(str, message[index*5:index*5+5])), 2)
 
-def cts(sender_id,reciever_id,nav):
+def cts(sender_id: int,reciever_id: int ,nav:int) -> list[int]:
+    """
+    Create a CTS message.
+
+    Parameters:
+        sender_id (int): Sender ID
+        reciever_id (int): Reciever ID
+        nav (int): NAV value
+
+    Returns:
+        list[int]: CTS message
+
+    """
     message = list(f'{sender_id:05b}')
     message += list(f'{reciever_id:05b}')
     message += list(f'{nav:010b}')
@@ -21,6 +44,17 @@ def cts(sender_id,reciever_id,nav):
     return message
 
 def acknowledge(sender_id,reciever_id):
+    """
+    Create an ACK message.
+
+    Parameters:
+        sender_id (int): Sender ID
+        reciever_id (int): Reciever ID
+
+    Returns:
+        list[int]: ACK message
+
+    """
     message = list(f'{sender_id:05b}')
     message += list(f'{reciever_id:05b}')
     message = [int(i) for i in message]
@@ -28,7 +62,20 @@ def acknowledge(sender_id,reciever_id):
 
 
 def receiver_dll_broadcast(id:int, sender_id:int, receiver : Receiver, sender : Sender):
+    """
+    Receive a broadcast message.
 
+    Parameters:
+        id (int): Reciever ID
+        sender_id (int): Sender ID
+        receiver (Receiver): Receiver object
+        sender (Sender): Sender object
+
+    Returns:
+        int: Sender ID
+        list[int]: Message received
+
+    """
     message_length, message = receiver.decode_audio_to_bits(timeout = config.TIMEOUT+config.SIFS)
     if message_length < 0:
         print("Message not received within timeout time")
@@ -64,6 +111,18 @@ def receiver_dll_broadcast(id:int, sender_id:int, receiver : Receiver, sender : 
 
 
 def receiver_dll(noise_power:np.ndarray, id:int):
+    """
+    Receive a message.
+
+    Parameters:
+        noise_power (np.ndarray): Noise power
+        id (int): Reciever ID
+
+    Returns:
+        int: Sender ID
+        list[int]: Message received
+
+    """
     receiver = Receiver(config.BASE)
     sender = Sender(config.BASE)
     receiver.noise = noise_power

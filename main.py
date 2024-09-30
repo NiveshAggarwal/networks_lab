@@ -7,9 +7,15 @@ from carrier_sense import *
 from IOHelper import IOHelper
 import math
 import ntplib
-from datetime import datetime
 
-def navSlots(messageLen=2):
+def navSlots(messageLen:int =2):
+    """
+    Calculate the NAV value.
+    Parameters:
+        messageLen (int): Length of the message
+    Returns:
+        int: NAV value
+    """
     return math.ceil((messageLen+config.CTS+config.ACK+3*config.CRC)/config.LOG_BASE)+math.ceil(3*(6+5/config.LOG_BASE))
 
 def get_ntp_time(server='time.google.com'):
@@ -26,6 +32,15 @@ def print_time(syncTime, syncBase):
     return ctime(syncTime + time() - syncBase)
 
 def createRTS(senderId,receiverId,messageLen):
+    """
+    Create RTS message.
+    Parameters:
+        senderId (int): Sender ID
+        receiverId (int): Receiver ID
+        messageLen (int): Length of the message
+    Returns:
+        list[int]: RTS message
+    """
     navT = navSlots(messageLen)
     message = list(f'{senderId:05b}')
     message += list(f'{receiverId:05b}')
@@ -33,18 +48,34 @@ def createRTS(senderId,receiverId,messageLen):
     message = [int(i) for i in message]
     return message
 
-def decode(message: list[int], index: int = 0):
-    if index==2:
-        return int(''.join(map(str, message[index*5:index*5+10])), 2)
-    else:
-        return int(''.join(map(str, message[index*5:index*5+5])), 2)
+def checkACK(senderId:int ,receiverId:int ,ack:list[int]) -> bool:
+    """
+    Check if the ACK is correct.
 
-def checkACK(senderId ,receiverId ,ack) -> bool:
+    Parameters:
+        senderId (int): Sender ID
+        receiverId (int): Receiver ID
+        ack (list[int]): ACK message
+
+    Returns:
+        bool: True if the ACK is correct, False otherwise
+    """
     senderIdGot = decode(ack, 0)
     receiverIdGot = decode(ack, 1)
     return senderIdGot == senderId and receiverIdGot == receiverId
 
 def send(noise_power:np.ndarray, receiverId:int, message: list[int]):
+    """
+    Send a message.
+
+    Parameters:
+        noise_power (np.ndarray): Noise power
+        receiverId (int): Receiver ID
+        message (list[int]): Message to send
+
+    Returns:
+        int: 0 if message sent successfully, -1 otherwise
+    """
     receiver=Receiver(config.BASE)
     sender=Sender(config.BASE)
     receiver.noise = noise_power
@@ -84,6 +115,17 @@ def send(noise_power:np.ndarray, receiverId:int, message: list[int]):
         return -1
     
 def send_broadcast(noise_power:np.ndarray, receiverId:int, message: list[int]):
+    """
+    Send a broadcast message.
+
+    Parameters:
+        noise_power (np.ndarray): Noise power
+        receiverId (int): Receiver ID
+        message (list[int]): Message to send
+
+    Returns:
+        int: 0 if message sent successfully, -1 otherwise
+    """
     receiver=Receiver(config.BASE)
     sender=Sender(config.BASE)
     receiver.noise = noise_power
