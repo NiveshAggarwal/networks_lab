@@ -8,6 +8,10 @@ from IOHelper import IOHelper
 import math
 import ntplib
 
+
+if __name__ == "__main__":
+    IOHelperObj = IOHelper()
+    
 def navSlots(messageLen:int =2):
     """
     Calculate the NAV value.
@@ -161,7 +165,6 @@ def send_broadcast(noise_power:np.ndarray, receiverId:int, message: list[int]):
 
 
 if __name__ == "__main__":
-    IOHelperObj = IOHelper()
     while True:
         syncTime = get_ntp_time()
         syncBase= time()
