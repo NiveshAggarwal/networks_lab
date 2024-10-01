@@ -9,8 +9,8 @@ class Receiver:
     def __init__(self, base):
         self.base= base
         self.diff = config.F_DIFF
-        self.freq = np.arange(config.F_LOW, config.F_LOW + self.diff * (self.base+1) , self.diff)
-        self.noise=np.array([0.0]*(self.base+1))
+        self.freq = np.arange(config.F_LOW, config.F_LOW + self.diff * (self.base+2) , self.diff)
+        self.noise=np.array([0.0]*(self.base+2))
 
     def open_audio_stream(self, sample_rate: int = 44100):
         """
@@ -67,9 +67,9 @@ class Receiver:
         for _ in range(0, segment_size*white_noise_sample_size, segment_size):
             segment = self.receive_audio(stream, duration, sample_rate)
             freqs, power = signal.welch(segment, sample_rate)
-            for i in range(self.base+1):
+            for i in range(self.base+2):
                 self.noise[i] += np.sum(power[(freqs >= self.freq[i]-100) & (freqs <= self.freq[i]+100)])
-        for i in range(self.base+1):
+        for i in range(self.base+2):
             self.noise[i] = self.noise[i]/white_noise_sample_size
         stream.stop_stream()
         stream.close()
@@ -88,7 +88,7 @@ class Receiver:
             int: Index of the frequency with the maximum power
         """
         stream, audio = self.open_audio_stream(sample_rate)
-        freq_power=np.array([0.0]*(self.base+1))
+        freq_power=np.array([0.0]*(self.base+2))
         for _ in range(0, int(total_duration/min_sense_duration)):
             segment = self.receive_audio(stream, min_sense_duration, sample_rate)
             freqs, power = signal.welch(segment, sample_rate)
@@ -173,7 +173,7 @@ class Receiver:
             time += bit_duration/10
             freq_power=np.array([0.0]*(self.base+1)) 
             freqs, power = signal.welch(segment, sample_rate)
-            for i in range(self.base+1):
+            for i in range(self.base+2):
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
             
             if freq_power[-1] >= np.max(freq_power[:-1]) and prev==0: 

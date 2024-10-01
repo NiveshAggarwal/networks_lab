@@ -9,7 +9,7 @@ class Sender:
     def __init__(self, base, sample_rate: int = 44100):
         self.base = base
         self.diff = config.F_DIFF
-        self.frequencies = np.arange(config.F_LOW, config.F_LOW + self.diff * (self.base+1) , self.diff)
+        self.frequencies = np.arange(config.F_LOW, config.F_LOW + self.diff * (self.base+2) , self.diff)
         self.audio = pyaudio.PyAudio()
         self.stream = self.audio.open(format=pyaudio.paFloat32,
                             channels=1,
