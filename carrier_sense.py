@@ -67,9 +67,9 @@ class Receiver:
         for _ in range(0, segment_size*white_noise_sample_size, segment_size):
             segment = self.receive_audio(stream, duration, sample_rate)
             freqs, power = signal.welch(segment, sample_rate)
-            for i in range(self.base+2):
+            for i in range(self.base+1):
                 self.noise[i] += np.sum(power[(freqs >= self.freq[i]-100) & (freqs <= self.freq[i]+100)])
-        for i in range(self.base+2):
+        for i in range(self.base+1):
             self.noise[i] = self.noise[i]/white_noise_sample_size
         stream.stop_stream()
         stream.close()
@@ -98,7 +98,7 @@ class Receiver:
             if np.max(freq_power) == 0:
                 threshold = -10
             else:
-                threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+2))*(self.base+2)/(self.base+1)) + config.THRESHOLD #TODO: change threshold
+                threshold = np.log10((np.mean(freq_power)-np.max(freq_power)/(self.base+1))*(self.base+1)/self.base) + config.THRESHOLD #TODO: change threshold
             if np.max(freq_power)!=0 and np.log10(np.max(freq_power)) >= threshold:
                 stream.stop_stream()
                 stream.close()
@@ -177,7 +177,7 @@ class Receiver:
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
             
             if freq_power[-1] >= np.max(freq_power[:-1]) and prev==0: 
-                if switch_zero_count >= 2: 
+                if switch_zero_count >= 2:  #TODO: Change the value of switch_zero_count
                     print("Special sequence ends. Now recieving preamble ... \n\n")  
                     break
                 else:
@@ -215,6 +215,8 @@ class Receiver:
                         print("Preamble recieved. Now recieving message ... \n\n")
                         original_message_length = self.preamble_check(preamble)
                         transmitted_message_length = int(transmissionLength(original_message_length)) 
+                        # TODO: Uncomment this line
+                        # transmitted_message_length = original_message_length
                     else:
                         preamble = np.append(preamble, self.index_to_bits(max_ind))
                 else:
