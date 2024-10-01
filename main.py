@@ -11,16 +11,7 @@ import ntplib
 
 if __name__ == "__main__":
     IOHelperObj = IOHelper()
-    
-def navSlots(messageLen:int =2):
-    """
-    Calculate the NAV value.
-    Parameters:
-        messageLen (int): Length of the message
-    Returns:
-        int: NAV value
-    """
-    return math.ceil((messageLen+config.CTS+config.ACK+3*config.CRC)/config.LOG_BASE)+math.ceil(3*(6+5/config.LOG_BASE))
+
 
 def get_ntp_time(server='time.google.com'):
     try:
@@ -34,39 +25,6 @@ def get_ntp_time(server='time.google.com'):
     
 def print_time(syncTime, syncBase):
     return ctime(syncTime + time() - syncBase)
-
-def createRTS(senderId,receiverId,messageLen):
-    """
-    Create RTS message.
-    Parameters:
-        senderId (int): Sender ID
-        receiverId (int): Receiver ID
-        messageLen (int): Length of the message
-    Returns:
-        list[int]: RTS message
-    """
-    navT = navSlots(messageLen)
-    message = list(f'{senderId:05b}')
-    message += list(f'{receiverId:05b}')
-    message += list(f'{navT:010b}')
-    message = [int(i) for i in message]
-    return message
-
-def checkACK(senderId:int ,receiverId:int ,ack:list[int]) -> bool:
-    """
-    Check if the ACK is correct.
-
-    Parameters:
-        senderId (int): Sender ID
-        receiverId (int): Receiver ID
-        ack (list[int]): ACK message
-
-    Returns:
-        bool: True if the ACK is correct, False otherwise
-    """
-    senderIdGot = decode(ack, 0)
-    receiverIdGot = decode(ack, 1)
-    return senderIdGot == senderId and receiverIdGot == receiverId
 
 def send(noise_power:np.ndarray, receiverId:int, message: list[int]):
     """
