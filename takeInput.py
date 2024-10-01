@@ -8,6 +8,7 @@ import config
 messageQueue = queue.Queue()
 
 def post_inputs():
+    """ Enters the messages in the message queue """
     
     ack_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ack_client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -29,7 +30,8 @@ def post_inputs():
 
 
 def get_input():
-
+    """Gets input from the user and provides trigger"""
+    
     num_inputs = int(input("Enter number of messages to be sent : "))
 
     input_array = []

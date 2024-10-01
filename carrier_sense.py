@@ -177,7 +177,7 @@ class Receiver:
                 freq_power[i] = np.abs(np.sum(power[(freqs >= self.freq[i]-self.diff/2) & (freqs <= self.freq[i]+self.diff/2)]) - self.noise[i])
             
             if freq_power[-1] >= np.max(freq_power[:-1]) and prev==0: 
-                if switch_zero_count >= 2:  #TODO: Change the value of switch_zero_count
+                if switch_zero_count >= 2: 
                     print("Special sequence ends. Now recieving preamble ... \n\n")  
                     break
                 else:
@@ -215,8 +215,6 @@ class Receiver:
                         print("Preamble recieved. Now recieving message ... \n\n")
                         original_message_length = self.preamble_check(preamble)
                         transmitted_message_length = int(transmissionLength(original_message_length)) 
-                        # TODO: Uncomment this line
-                        # transmitted_message_length = original_message_length
                     else:
                         preamble = np.append(preamble, self.index_to_bits(max_ind))
                 else:

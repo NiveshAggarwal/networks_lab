@@ -29,6 +29,7 @@ class IOHelper:
         self.old_responses = []
     
     def consumeInput(self):
+        """ Returns receiver ID and message in queue or termination status """
         if self.isTerminated:
             return (self.terminated, [])
         if len(self.old_responses) > 0:
@@ -49,6 +50,15 @@ class IOHelper:
            return (self.noInput, [])
 
     def relayOutput(self, output):
+        """
+        Send the output to the output socket, handling different types and closing sockets on termination
+        
+        Parameters:
+            output (list[int]) : output message 
+
+        Returns:
+            int: 0 if message relayed successfully, -1 otherwise
+        """
         if type(output) == list:
             if type(output[0]) == int:
                 output = ",".join([str(i) for i in output])
@@ -66,6 +76,13 @@ class IOHelper:
         return 0
     
     def insert(self, receiverId, message):
+        """
+        Inserts the tuple (receiverId, message) to the list of responses
+        
+        Parameters:
+            receiverId (int) : Id of the receiver
+            message (list[int]) : message list
+        """
         self.old_responses = [(receiverId, message)] + self.old_responses
 
 if __name__ == "__main__":

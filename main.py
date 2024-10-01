@@ -201,7 +201,6 @@ if __name__ == "__main__":
                             backoffCounter = random.randint(0, 2**backoffCounterMax)
                         else:
                             print("Broadcast sent successfully. ACKs received\n\n")
-                            # sleep(1)
                             collisions = 0
                             backoffCounter = 0
                             backoffCounterMax = 1
@@ -219,7 +218,6 @@ if __name__ == "__main__":
                             backoffCounter = random.randint(0, 2**backoffCounterMax)
                         else:
                             print("Message sent successfully. ACK received\n\n")
-                            # sleep(1)
                             collisions = 0
                             backoffCounter = 0
                             backoffCounterMax = 1
@@ -249,7 +247,6 @@ if __name__ == "__main__":
                                 backoffCounter = random.randint(0, 2**backoffCounterMax)
                             else:
                                 print("Broadcast sent successfully. ACKs received\n\n")
-                                # sleep(1)
                                 collisions = 0
                                 backoffCounter = 0
                                 backoffCounterMax = 1
@@ -268,7 +265,6 @@ if __name__ == "__main__":
                                 backoffCounter = random.randint(0, 2**backoffCounterMax)
                             else:
                                 print("Message sent successfully. ACK received\n\n")
-                                # sleep(1)
                                 collisions = 0
                                 backoffCounter = 0
                                 backoffCounterMax = 1
